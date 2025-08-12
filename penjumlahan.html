@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMU - Penjumlahan Matriks</title>
+  
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Roboto+Mono&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #0d1117; background-image: radial-gradient(circle at 1px 1px, #374151 1px, transparent 0); background-size: 20px 20px; }
+        .nav-link { color: #9ca3af; font-weight: 600; transition: color 0.2s ease-in-out; position: relative; padding-bottom: 4px; text-decoration: none; }
+        .nav-link:hover { color: #ffffff; }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0; left: 50%; transform: translateX(-50%); background-color: #22d3ee; transition: width 0.3s ease-in-out; }
+        .nav-link:hover::after, .nav-link.is-active::after { width: 100%; }
+        .nav-link.is-active { color: #ffffff; }
+        .form-input { background-color: #0d1117; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.6rem 0.8rem; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
+        .form-input:focus { outline: none; border-color: #22d3ee; box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2); }
+        .matrix-cell { font-family: 'Roboto Mono', monospace; text-align: center; min-width: 36px; height: 52px; padding: 0.5rem 0.2rem; font-size: 1rem; transition: all 0.2s ease-in-out; }
+        .result-step { background-color: #1f2937; border: 1px solid #374151; padding: 1.25rem; border-radius: 0.75rem; margin-bottom: 1rem; }
+        .btn { padding: 0.6rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; }
+        .btn-green { background-color: #22c55e; color: white; } .btn-green:hover { background-color: #16a34a; }
+        .btn-indigo { background-color: #6366f1; color: white; } .btn-indigo:hover { background-color: #4f46e5; }
+        .btn-yellow { background-color: #eab308; color: white; } .btn-yellow:hover { background-color: #ca8a04; }
+        .btn-red { background-color: #ef4444; color: white; } .btn-red:hover { background-color: #dc2626; }
+        .tippy-box[data-theme~='matrix'] { background-color: #0d1117; color: #22d3ee; font-weight: 600; border: 1px solid #22d3ee; }
+        .matrix-grid.is-dense .matrix-cell { height: 42px; font-size: 0.8rem; }
+        .math-container { overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
+    </style>
+</head>
+<body class="text-white min-h-screen flex flex-col">
+
+    <header class="sticky top-0 bg-gray-900/50 backdrop-blur-lg border-b border-gray-800 z-10">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0"><a href="index.html" class="text-2xl font-bold text-white">AMU<span class="text-cyan-400">.my.id</span></a></div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="inverse.html" class="nav-link">Inverse</a>
+                        <a href="penjumlahan.html" class="nav-link is-active">Penjumlahan</a>
+                        <a href="pengurangan.html" class="nav-link">Pengurangan</a>
+                        <a href="perkalian.html" class="nav-link">Perkalian</a>
+                        <a href="determinan.html" class="nav-link">Determinan</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow p-4 md:p-8">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-white mb-8 text-center">Kalkulator Penjumlahan Matriks</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="flex flex-col gap-6">
+                    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                        <h2 class="text-xl font-bold mb-4 text-cyan-400">Kontrol & Opsi</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div data-tippy-content="Tentukan jumlah baris."><label for="rowsSize" class="block text-sm font-medium text-gray-300 mb-1">Jumlah Baris (m)</label><input id="rowsSize" type="number" min="1" max="10" value="2" class="form-input"></div>
+                            <div data-tippy-content="Tentukan jumlah kolom."><label for="colsSize" class="block text-sm font-medium text-gray-300 mb-1">Jumlah Kolom (n)</label><input id="colsSize" type="number" min="1" max="10" value="3" class="form-input"></div>
+                            <div class="sm:col-span-2" data-tippy-content="Pilih format angka untuk hasil perhitungan."><label for="fractionMode" class="block text-sm font-medium text-gray-300 mb-1">Mode Angka</label><select id="fractionMode" class="form-input"><option value="decimal">Desimal</option><option value="fraction">Pecahan</option></select></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div id="inputSectionA" class="bg-gray-800 p-6 rounded-xl border border-gray-700"><h2 class="text-xl font-bold mb-4 text-cyan-400">Input Matriks A</h2><div id="matrixAContainer" class="matrix-grid grid gap-3 justify-center"></div></div>
+                        <div id="inputSectionB" class="bg-gray-800 p-6 rounded-xl border border-gray-700"><h2 class="text-xl font-bold mb-4 text-cyan-400">Input Matriks B</h2><div id="matrixBContainer" class="matrix-grid grid gap-3 justify-center"></div></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button id="randomizeBtn" class="btn btn-indigo" data-tippy-content="Isi semua sel matriks A dan B dengan angka acak.">Isi Acak</button>
+                        <button id="computeBtn" class="btn btn-green" data-tippy-content="Mulai proses penjumlahan matriks.">Hitung Penjumlahan</button>
+                    </div>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 min-h-[400px]">
+                    <h2 class="text-xl font-bold mb-4 text-cyan-400">Hasil Perhitungan</h2>
+                    <div id="outputContainer" class="bg-gray-900/50 rounded-lg p-4"><div id="output" class="text-gray-400">Masukkan matriks dan tekan "Hitung Penjumlahan" untuk melihat hasilnya di sini.</div></div>
+                    <div class="mt-4 flex gap-4">
+                        <button id="exportBtn" class="btn btn-yellow" data-tippy-content="Simpan soal dan hasil perhitungan sebagai file PDF.">Export PDF</button>
+                        <button id="resetBtn" class="btn btn-red" data-tippy-content="Kosongkan semua sel matriks menjadi 0 dan bersihkan hasil.">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-900 border-t border-gray-800 mt-20">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-400">&copy; 2025 AMU (www.amu.my.id). Dibuat untuk Edukasi dan Kemudahan.</p>
+        </div>
+    </footer>
+
+    <script>
+        const matrixAContainer = document.getElementById('matrixAContainer');
+        const matrixBContainer = document.getElementById('matrixBContainer');
+        const outputEl = document.getElementById('output');
+        const rowsInput = document.getElementById('rowsSize');
+        const colsInput = document.getElementById('colsSize');
+        
+        const clampSize = (n) => Math.max(1, Math.min(10, n));
+        const formatNumberLatex = (x) => {
+            if (document.getElementById('fractionMode').value === 'fraction') {
+                try {
+                    const f = math.fraction(x);
+                    if (Math.abs(f.d) === 1) return `${f.s * f.n}`;
+                    return `${f.s < 0 ? '-' : ''}\\frac{${Math.abs(f.n)}}{${f.d}}`;
+                } catch { return math.format(x, { precision: 4 }); }
+            }
+            return math.format(x, { precision: 4 });
+        };
+        const formatMatrixLatex = (M) => `\\begin{bmatrix}${M.map(r => r.map(formatNumberLatex).join(' & ')).join(' \\\\ ')}\\end{bmatrix}`;
+
+        const createGrid = (container, rows, cols) => {
+          container.innerHTML = '';
+          container.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+          if (cols > 5) { container.classList.add('is-dense'); } 
+          else { container.classList.remove('is-dense'); }
+          for (let i = 0; i < rows * cols; i++) {
+            const inp = document.createElement('input');
+            inp.type = 'number';
+            inp.step = 'any';
+            inp.className = 'form-input matrix-cell';
+            inp.value = Math.floor(Math.random() * 10) - 4;
+            container.appendChild(inp);
+          }
+        };
+
+        const getMatrixFrom = (container, rows, cols) => Array.from(container.querySelectorAll('input')).reduce((acc, inp, i) => {
+            const row = Math.floor(i / cols);
+            if (!acc[row]) acc[row] = [];
+            acc[row].push(isNaN(parseFloat(inp.value)) ? 0 : parseFloat(inp.value));
+            return acc;
+        }, []);
+
+        const addWithExplanation = (A, B) => {
+            const rows = A.length;
+            const cols = A[0].length;
+            const result = Array.from({ length: rows }, () => Array(cols).fill(0));
+            let steps = [];
+            steps.push({
+                explanation: `Penjumlahan matriks dilakukan dengan menjumlahkan elemen-elemen yang posisinya bersesuaian.`,
+                matrixLatex: `${formatMatrixLatex(A)} + ${formatMatrixLatex(B)}`
+            });
+            const detailMatrix = A.map((row, i) => row.map((val, j) => `(${formatNumberLatex(val)} + ${formatNumberLatex(B[i][j])})`));
+            steps.push({
+                explanation: `Jumlahkan setiap elemen pada posisi yang sama.`,
+                matrixLatex: `\\begin{bmatrix}${detailMatrix.map(r => r.join(' & ')).join(' \\\\ ')}\\end{bmatrix}`
+            });
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    result[i][j] = A[i][j] + B[i][j];
+                }
+            }
+            steps.push({
+                explanation: `Sederhanakan hasil penjumlahan di setiap elemen untuk mendapatkan matriks akhir.`,
+                matrixLatex: `${formatMatrixLatex(result)}`
+            });
+            return { success: true, result, steps };
+        };
+
+        const computeAddition = () => {
+            outputEl.innerHTML = `<div class="text-center text-gray-400">Menghitung...</div>`;
+            setTimeout(() => {
+                const rows = clampSize(parseInt(rowsInput.value) || 2);
+                const cols = clampSize(parseInt(colsInput.value) || 2);
+                const A = getMatrixFrom(matrixAContainer, rows, cols);
+                const B = getMatrixFrom(matrixBContainer, rows, cols);
+                const res = addWithExplanation(A, B);
+                
+                outputEl.innerHTML = '';
+                
+                res.steps.forEach((s, idx) => {
+                    outputEl.innerHTML += `<div class="result-step"><div class="text-sm font-semibold text-cyan-400 mb-2">Langkah ${idx + 1}:</div><p class="text-gray-300 text-base mb-3">${s.explanation}</p><div class="math-container">\\(${s.matrixLatex}\\)</div></div>`;
+                });
+
+                outputEl.innerHTML += `<div class="mt-4 pt-4 border-t-2 border-green-500"><h3 class="font-bold text-green-400 text-lg">Hasil Akhir: Matriks (A + B)</h3><div class="math-container">\\(${formatMatrixLatex(res.result)}\\)</div></div>`;
+                
+                if (window.MathJax) MathJax.typesetPromise([outputEl]).catch(err => console.log('MathJax Error: ', err));
+            }, 50);
+        };
+
+        const resetMatrix = () => {
+            matrixAContainer.querySelectorAll('input').forEach(input => input.value = '0');
+            matrixBContainer.querySelectorAll('input').forEach(input => input.value = '0');
+            outputEl.innerHTML = `<div class="text-gray-400">Masukkan matriks dan tekan "Hitung Penjumlahan" untuk melihat hasilnya di sini.</div>`;
+        };
+
+        const updateGrids = () => {
+            const rows = clampSize(parseInt(rowsInput.value) || 2);
+            const cols = clampSize(parseInt(colsInput.value) || 2);
+            createGrid(matrixAContainer, rows, cols);
+            createGrid(matrixBContainer, rows, cols);
+        };
+        
+        const formatNumberAsHTML = (x, precision = 4) => {
+          if (document.getElementById('fractionMode').value === 'fraction') {
+            try {
+              const f = math.fraction(x);
+              if (Math.abs(f.d) === 1) return `${f.s * f.n}`;
+              return `<sup>${f.s * f.n}</sup>&frasl;<sub>${f.d}</sub>`;
+            } catch { return math.format(x, { notation: 'fixed', precision }); }
+          }
+          return math.format(x, { notation: 'fixed', precision });
+        };
+
+        const formatMatrixAsHTMLTable = (M) => {
+          let table = '<table style="margin: auto; border-spacing: 0.5rem; border-collapse: separate; font-family: \'Roboto Mono\', monospace;"><tbody>';
+          for (const row of M) {
+            table += '<tr>';
+            for (const cell of row) { table += `<td style="border: 1px solid #4b5563; border-radius: 0.375rem; padding: 0.5rem; text-align: center; min-width: 50px;">${formatNumberAsHTML(cell)}</td>`; }
+            table += '</tr>';
+          }
+          table += '</tbody></table>';
+          return table;
+        };
+
+        document.getElementById('computeBtn').addEventListener('click', computeAddition);
+        rowsInput.addEventListener('input', updateGrids);
+        colsInput.addEventListener('input', updateGrids);
+        document.getElementById('randomizeBtn').addEventListener('click', updateGrids);
+        document.getElementById('resetBtn').addEventListener('click', resetMatrix);
+        
+        document.getElementById('exportBtn').addEventListener('click', () => {
+          const outputElForPdf = document.getElementById('output');
+          if (outputElForPdf.innerText.includes('Masukkan matriks') || outputElForPdf.innerText.trim() === '') { alert('Tidak ada hasil untuk di-export!'); return; }
+          
+          const rows = clampSize(parseInt(rowsInput.value) || 2);
+          const cols = clampSize(parseInt(colsInput.value) || 2);
+          const A = getMatrixFrom(matrixAContainer, rows, cols);
+          const B = getMatrixFrom(matrixBContainer, rows, cols);
+          const res = addWithExplanation(A, B);
+
+          let reportHTML = `<style>body { font-family: 'Poppins', sans-serif; color: #e5e7eb; font-size: 14px; } h1, h2, h3 { color: #38bdf8; margin: 0; padding: 0;} p { margin: 0; padding: 0; } .section { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; }</style>`;
+          reportHTML += `<div style="padding: 1rem;"><div style="text-align:center; margin-bottom: 1.5rem;"><h1>${document.getElementById('mainTitle').innerText}</h1><p style="font-size: 1.1em; color: #9ca3af; margin-top: 0.25rem;">Laporan Perhitungan Penjumlahan Matriks</p></div>`;
+          reportHTML += `<div class="section" style="text-align: center;"><h2 style="font-size: 1.25em; margin-bottom: 1rem;">Input Matriks</h2><div style="display: flex; justify-content: center; align-items: center; gap: 1rem;"><div><h3>Matriks A</h3>${formatMatrixAsHTMLTable(A)}</div><div style="font-size: 2em; color: #38bdf8;">+</div><div><h3>Matriks B</h3>${formatMatrixAsHTMLTable(B)}</div></div></div>`;
+          reportHTML += `<hr style="margin: 1.5rem 0; border-color: #374151; border-style: dashed;"><div><h2 style="font-size: 1.25em; margin-bottom: 1rem;">Hasil Perhitungan</h2><div class="section"><h3 style="font-weight: 600; color: #4ade80;">Hasil Akhir: Matriks (A + B)</h3>${formatMatrixAsHTMLTable(res.result)}</div></div></div>`;
+          const opt = { margin: 0.5, filename: 'amu_penjumlahan.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+          html2pdf().from(reportHTML).set(opt).save();
+        });
+
+        updateGrids();
+        tippy('[data-tippy-content]', { theme: 'matrix', animation: 'scale-subtle' });
+    </script>
+</body>
+</html>

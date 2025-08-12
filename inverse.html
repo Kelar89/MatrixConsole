@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AMU - Inverse Matriks</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Roboto+Mono&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://unpkg.com/@popperjs/core@2"></script>
+  <script src="https://unpkg.com/tippy.js@6"></script>
+
+  <style>
+    body { font-family: 'Poppins', sans-serif; background-color: #0d1117; background-image: radial-gradient(circle at 1px 1px, #374151 1px, transparent 0); background-size: 20px 20px; }
+    .nav-link { color: #9ca3af; font-weight: 600; transition: color 0.2s ease-in-out; position: relative; padding-bottom: 4px; text-decoration: none; }
+    .nav-link:hover { color: #ffffff; }
+    .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0; left: 50%; transform: translateX(-50%); background-color: #22d3ee; transition: width 0.3s ease-in-out; }
+    .nav-link:hover::after, .nav-link.is-active::after { width: 100%; }
+    .nav-link.is-active { color: #ffffff; }
+    .form-input { background-color: #0d1117; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.6rem 0.8rem; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
+    .form-input:focus { outline: none; border-color: #22d3ee; box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2); }
+    .matrix-cell { font-family: 'Roboto Mono', monospace; text-align: center; min-width: 36px; height: 52px; padding: 0.5rem 0.2rem; font-size: 1rem; transition: all 0.2s ease-in-out; }
+    .result-step { background-color: #1f2937; border: 1px solid #374151; padding: 1.25rem; border-radius: 0.75rem; margin-bottom: 1rem; }
+    .btn { padding: 0.6rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; }
+    .btn-green { background-color: #22c55e; color: white; } .btn-green:hover { background-color: #16a34a; }
+    .btn-indigo { background-color: #6366f1; color: white; } .btn-indigo:hover { background-color: #4f46e5; }
+    .btn-yellow { background-color: #eab308; color: white; } .btn-yellow:hover { background-color: #ca8a04; }
+    .btn-red { background-color: #ef4444; color: white; } .btn-red:hover { background-color: #dc2626; }
+    .tippy-box[data-theme~='matrix'] { background-color: #0d1117; color: #22d3ee; font-weight: 600; border: 1px solid #22d3ee; }
+    .matrix-grid.is-dense .matrix-cell { height: 42px; font-size: 0.8rem; }
+    .math-container { overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
+  </style>
+</head>
+<body class="text-white min-h-screen flex flex-col">
+
+  <header class="sticky top-0 bg-gray-900/50 backdrop-blur-lg border-b border-gray-800 z-10">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <div class="flex-shrink-0"><a href="index.html" class="text-2xl font-bold text-white">AMU<span class="text-cyan-400">.my.id</span></a></div>
+        <div class="hidden md:block">
+          <div class="ml-10 flex items-baseline space-x-8">
+            <a href="inverse.html" class="nav-link is-active">Inverse</a>
+            <a href="penjumlahan.html" class="nav-link">Penjumlahan</a>
+            <a href="pengurangan.html" class="nav-link">Pengurangan</a>
+            <a href="perkalian.html" class="nav-link">Perkalian</a>
+            <a href="determinan.html" class="nav-link">Determinan</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="flex-grow p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+      <h2 class="text-3xl font-bold text-white mb-8 text-center">Kalkulator Inverse Matriks</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="flex flex-col gap-6">
+          <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+            <h2 class="text-xl font-bold mb-4 text-cyan-400">Kontrol & Opsi</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div data-tippy-content="Tentukan ukuran matriks persegi (misal: 3 untuk 3x3)."><label for="matrixSize" class="block text-sm font-medium text-gray-300 mb-1">Ukuran Matriks (n x n)</label><input id="matrixSize" type="number" min="1" max="10" value="2" class="form-input"></div>
+              <div data-tippy-content="Pilih format angka untuk hasil perhitungan." class="sm:col-span-2"><label for="fractionMode" class="block text-sm font-medium text-gray-300 mb-1">Mode Angka</label><select id="fractionMode" class="form-input"><option value="decimal">Desimal</option><option value="fraction">Pecahan</option></select></div>
+               <div class="sm:col-span-2" data-tippy-content="Pilih apakah ingin melihat langkah-langkah detail atau hanya hasil akhirnya."><label for="showStepsMode" class="block text-sm font-medium text-gray-300 mb-1">Tampilkan Langkah</label><select id="showStepsMode" class="form-input"><option value="yes">Ya, Tampilkan Detail</option><option value="no">Tidak, Langsung Hasil</option></select></div>
+            </div>
+          </div>
+          <div id="inputSection" class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+            <h2 class="text-xl font-bold mb-4 text-cyan-400">Input Matriks A</h2>
+            <div id="matrixAContainer" class="matrix-grid grid gap-3 justify-center"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <button id="randomizeBtn" class="btn btn-indigo" data-tippy-content="Isi semua sel matriks dengan angka acak.">Isi Acak</button>
+            <button id="computeBtn" class="btn btn-green" data-tippy-content="Mulai proses perhitungan invers matriks.">Hitung Inverse</button>
+          </div>
+        </div>
+        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 min-h-[400px]">
+          <h2 class="text-xl font-bold mb-4 text-cyan-400">Hasil Perhitungan</h2>
+          <div id="outputContainer" class="bg-gray-900/50 rounded-lg p-4"><div id="output" class="text-gray-400">Masukkan matriks dan tekan "Hitung Inverse" untuk melihat hasilnya di sini.</div></div>
+          <div class="mt-4 flex gap-4">
+            <button id="exportBtn" class="btn btn-yellow" data-tippy-content="Simpan soal dan hasil perhitungan sebagai file PDF.">Export PDF</button>
+            <button id="resetBtn" class="btn btn-red" data-tippy-content="Kosongkan semua sel matriks menjadi 0 dan bersihkan hasil.">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer class="bg-gray-900 border-t border-gray-800 mt-20">
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+      <p class="text-gray-400">&copy; 2025 AMU (www.amu.my.id). Dibuat untuk Edukasi dan Kemudahan.</p>
+    </div>
+  </footer>
+
+  <script>
+    const matrixAContainer = document.getElementById('matrixAContainer');
+    const outputEl = document.getElementById('output');
+    const sizeInput = document.getElementById('matrixSize');
+    
+    const clampSize = (n) => Math.max(1, Math.min(10, n));
+
+    const formatNumberLatex = (x) => {
+      if (document.getElementById('fractionMode').value === 'fraction') {
+        try {
+          const f = math.fraction(x);
+          if (Math.abs(f.d) === 1) return `${f.s * f.n}`;
+          return `${f.s < 0 ? '-' : ''}\\frac{${Math.abs(f.n)}}{${f.d}}`;
+        } catch { return math.format(x, { precision: 4 }); }
+      }
+      return math.format(x, { precision: 4 });
+    };
+
+    const formatMatrixLatex = (M) => `\\begin{bmatrix}${M.map(r => r.map(formatNumberLatex).join(' & ')).join(' \\\\ ')}\\end{bmatrix}`;
+    
+    const formatAugmentedLatex = (M) => {
+      const n = M.length;
+      const aPart = M.map(row => row.slice(0, n));
+      const iPart = M.map(row => row.slice(n));
+      const aLatex = aPart.map(r => r.map(formatNumberLatex).join(' & ')).join(' \\\\ ');
+      const iLatex = iPart.map(r => r.map(formatNumberLatex).join(' & ')).join(' \\\\ ');
+      return `\\left[ \\begin{array}{${'c'.repeat(n)}} ${aLatex} \\end{array} \\middle| \\begin{array}{${'c'.repeat(n)}} ${iLatex} \\end{array} \\right]`;
+    };
+
+    const createGrid = (container, n) => {
+        container.innerHTML = '';
+        container.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+        if (n > 5) { container.classList.add('is-dense'); } 
+        else { container.classList.remove('is-dense'); }
+        for (let i = 0; i < n * n; i++) {
+            const inp = document.createElement('input');
+            inp.type = 'number';
+            inp.step = 'any';
+            inp.className = 'form-input matrix-cell';
+            inp.value = Math.floor(Math.random() * 10) - 4;
+            container.appendChild(inp);
+        }
+    };
+
+    const getMatrixFrom = (container, n) => Array.from(container.querySelectorAll('input')).reduce((acc, inp, i) => {
+        const row = Math.floor(i / n);
+        if (!acc[row]) acc[row] = [];
+        acc[row].push(isNaN(parseFloat(inp.value)) ? 0 : parseFloat(inp.value));
+        return acc;
+    }, []);
+
+    const inverseWithExplanation = (A) => {
+        const n = A.length;
+        if (n === 1) {
+            const val = A[0][0];
+            if (Math.abs(val) < 1e-12) return { success: false, message: 'Matriks singular (nilai adalah 0), tidak dapat dibalik.' };
+            const inverse = [[1 / val]];
+            return { success: true, inverse, steps: [{
+                explanation: `Untuk matriks 1x1 \\([a]\\), inversnya adalah \\([1/a]\\).`,
+                matrixLatex: `A^{-1} = \\frac{1}{${formatNumberLatex(val)}} = ${formatMatrixLatex(inverse)}`
+            }]};
+        } else if (n === 2) {
+            const [[a, b], [c, d]] = A;
+            const det = a * d - b * c;
+            const steps = [{
+                explanation: `Untuk matriks 2x2, gunakan rumus: \\(A^{-1} = \\frac{1}{\\det(A)} \\cdot \\text{adj}(A)\\). Pertama, hitung determinan.`,
+                matrixLatex: `\\det(A) = (a \\cdot d) - (b \\cdot c) \\\\ = (${formatNumberLatex(a)})(${formatNumberLatex(d)}) - (${formatNumberLatex(b)})(${formatNumberLatex(c)}) = ${formatNumberLatex(det)}`
+            }];
+            if (Math.abs(det) < 1e-12) return { success: false, message: 'Determinan adalah 0, matriks ini singular.', steps };
+            const adj = [[d, -b], [-c, a]];
+            steps.push({
+                explanation: `Selanjutnya, buat matriks Adjoin.`,
+                matrixLatex: `\\text{adj}(A) = ${formatMatrixLatex(adj)}`
+            });
+            const inverse = adj.map(row => row.map(val => val / det));
+            steps.push({
+                explanation: `Terakhir, kalikan matriks Adjoin dengan \\(\\frac{1}{\\det(A)}\\).`,
+                matrixLatex: `A^{-1} = \\frac{1}{${formatNumberLatex(det)}} ${formatMatrixLatex(adj)} = ${formatMatrixLatex(inverse)}`
+            });
+            return { success: true, inverse, steps };
+        } else {
+            let AI = A.map((row, i) => [...row, ...math.identity(n)._data[i]]);
+            const steps = [{
+                explanation: `Untuk matriks ${n}x${n}, gunakan metode eliminasi Gauss-Jordan.`,
+                matrixLatex: formatAugmentedLatex(AI)
+            }];
+            for (let i = 0; i < n; i++) {
+                let maxRow = i;
+                for (let k = i + 1; k < n; k++) if (Math.abs(AI[k][i]) > Math.abs(AI[maxRow][i])) maxRow = k;
+                if (maxRow !== i) {
+                    [AI[i], AI[maxRow]] = [AI[maxRow], AI[i]];
+                    steps.push({ explanation: `(Pivoting) Tukar baris ${i + 1} dan ${maxRow + 1}.`, matrixLatex: formatAugmentedLatex(AI) });
+                }
+                const pivot = AI[i][i];
+                if (Math.abs(pivot) < 1e-12) return { success: false, message: 'Matriks singular (pivot nol ditemukan).', steps };
+                for (let j = i; j < 2 * n; j++) AI[i][j] /= pivot;
+                steps.push({ explanation: `(Normalisasi) Bagi baris ${i + 1} dengan pivotnya.`, matrixLatex: formatAugmentedLatex(AI) });
+                for (let k = 0; k < n; k++) {
+                    if (k !== i) {
+                        const factor = AI[k][i];
+                        if (Math.abs(factor) === 0) continue;
+                        for (let j = i; j < 2 * n; j++) AI[k][j] -= factor * AI[i][j];
+                        steps.push({ explanation: `(Eliminasi) Nolkan elemen di baris ${k + 1}, kolom ${i + 1}.`, matrixLatex: formatAugmentedLatex(AI) });
+                    }
+                }
+            }
+            return { success: true, inverse: AI.map(row => row.slice(n)), steps };
+        }
+    };
+
+    const computeInverse = () => {
+        outputEl.innerHTML = `<div class="text-center text-gray-400">Menghitung...</div>`;
+        setTimeout(() => {
+            const n = clampSize(parseInt(sizeInput.value) || 2);
+            const A = getMatrixFrom(matrixAContainer, n);
+            const res = inverseWithExplanation(A);
+            outputEl.innerHTML = '';
+            if (res.steps) {
+                const showAll = document.getElementById('showStepsMode').value === 'yes';
+                res.steps.forEach((s, idx) => {
+                    const isLastError = !res.success && idx === res.steps.length - 1;
+                    if (showAll || isLastError) {
+                        outputEl.innerHTML += `<div class="result-step"><div class="text-sm font-semibold text-cyan-400 mb-2">Langkah ${idx + 1}:</div><p class="text-gray-300 text-base mb-3">${s.explanation}</p><div class="math-container">\\(${s.matrixLatex}\\)</div></div>`;
+                    }
+                });
+            }
+            if (!res.success) {
+                if(!res.steps || document.getElementById('showStepsMode').value === 'no') { 
+                  outputEl.innerHTML += `<div class="text-red-400 font-bold text-center p-4">⚠️ ${res.message}</div>`;
+                }
+            } else {
+                outputEl.innerHTML += `<div class="mt-4 pt-4 border-t-2 border-green-500"><h3 class="font-bold text-green-400 text-lg">Hasil Akhir: Matriks Invers (A⁻¹)</h3><div class="math-container">\\(${formatMatrixLatex(res.inverse)}\\)</div></div>`;
+            }
+            if (window.MathJax) MathJax.typesetPromise([outputEl]).catch(err => console.log('MathJax Error: ', err));
+        }, 50);
+    };
+
+    const resetMatrix = () => {
+        const inputs = matrixAContainer.querySelectorAll('input');
+        inputs.forEach(input => input.value = '0');
+        outputEl.innerHTML = `<div class="text-gray-400">Masukkan matriks dan tekan "Hitung Inverse" untuk melihat hasilnya di sini.</div>`;
+    };
+
+    const formatNumberAsHTML = (x, precision = 4) => {
+      if (document.getElementById('fractionMode').value === 'fraction') {
+        try {
+          const f = math.fraction(x);
+          if (Math.abs(f.d) === 1) return `${f.s * f.n}`;
+          return `<sup>${f.s * f.n}</sup>&frasl;<sub>${f.d}</sub>`;
+        } catch { return math.format(x, { notation: 'fixed', precision }); }
+      }
+      return math.format(x, { notation: 'fixed', precision });
+    };
+
+    const formatMatrixAsHTMLTable = (M) => {
+      let table = '<table style="margin: auto; border-spacing: 0.5rem; border-collapse: separate; font-family: \'Roboto Mono\', monospace;"><tbody>';
+      for (const row of M) {
+        table += '<tr>';
+        for (const cell of row) { table += `<td style="border: 1px solid #4b5563; border-radius: 0.375rem; padding: 0.5rem; text-align: center; min-width: 50px;">${formatNumberAsHTML(cell)}</td>`; }
+        table += '</tr>';
+      }
+      table += '</tbody></table>';
+      return table;
+    };
+    
+    document.getElementById('computeBtn').addEventListener('click', computeInverse);
+    sizeInput.addEventListener('input', () => createGrid(matrixAContainer, clampSize(parseInt(sizeInput.value) || 2)));
+    document.getElementById('randomizeBtn').addEventListener('click', () => createGrid(matrixAContainer, clampSize(parseInt(sizeInput.value) || 2)));
+    document.getElementById('resetBtn').addEventListener('click', resetMatrix);
+    
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const outputElForPdf = document.getElementById('output');
+      if (outputElForPdf.innerText.includes('Masukkan matriks') || outputElForPdf.innerText.trim() === '') { alert('Tidak ada hasil untuk di-export!'); return; }
+      const n = clampSize(parseInt(sizeInput.value) || 2);
+      const A = getMatrixFrom(matrixAContainer, n);
+      const res = inverseWithExplanation(A);
+      
+      let reportHTML = `<style>body { font-family: 'Poppins', sans-serif; color: #e5e7eb; font-size: 14px; } h1, h2, h3 { color: #38bdf8; margin: 0; padding: 0;} p { margin: 0; padding: 0; } .section { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; } .step-explanation { margin-bottom: 1rem; color: #d1d5db; }</style>`;
+      reportHTML += `<div style="padding: 1rem;"><div style="text-align:center; margin-bottom: 1.5rem;"><h1>${document.getElementById('mainTitle').innerText}</h1><p style="font-size: 1.1em; color: #9ca3af; margin-top: 0.25rem;">Laporan Perhitungan Invers Matriks</p></div>`;
+      reportHTML += `<div class="section"><h2 style="font-size: 1.25em; margin-bottom: 1rem; text-align: center;">Input Matriks A</h2>${formatMatrixAsHTMLTable(A)}</div>`;
+      reportHTML += `<hr style="margin: 1.5rem 0; border-color: #374151; border-style: dashed;"><div><h2 style="font-size: 1.25em; margin-bottom: 1rem;">Hasil Perhitungan</h2>`;
+      if (res.steps && (document.getElementById('showStepsMode').value === 'yes' || !res.success) ) {
+        // PDF tidak menampilkan rumus LaTeX yang rumit
+      }
+      if (res.success) {
+        reportHTML += `<div class="section" style="border-color: #22c55e;"><h3 style="font-weight: 600; color: #4ade80; margin-bottom: 0.5rem;">Hasil Akhir: Matriks Invers (A⁻¹)</h3>${formatMatrixAsHTMLTable(res.inverse)}</div>`;
+      } else {
+        reportHTML += `<div class="section" style="border-color: #ef4444; color: #f87171;"><h3 style="font-weight: 600;">Perhitungan Gagal</h3><p>${res.message}</p></div>`;
+      }
+      reportHTML += '</div></div>';
+      const opt = { margin: 0.5, filename: 'amu_inverse.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+      html2pdf().from(reportHTML).set(opt).save();
+    });
+
+    createGrid(matrixAContainer, clampSize(parseInt(sizeInput.value) || 2));
+    tippy('[data-tippy-content]', { theme: 'matrix', animation: 'scale-subtle' });
+  </script>
+</body>
+</html>

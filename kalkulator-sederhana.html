@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Sederhana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: transparent; }
+        .calc-btn { background-color: #374151; border-radius: 0.5rem; font-size: 1.5rem; font-family: 'Roboto Mono', monospace; transition: background-color 0.2s; color: white; }
+        .calc-btn:hover { background-color: #4b5563; }
+        .calc-btn.op { background-color: #0e7490; }
+        .calc-btn.op:hover { background-color: #0891b2; }
+    </style>
+</head>
+<body class="p-2">
+    <div id="calculator-body" class="bg-gray-800 rounded-2xl shadow-xl p-6 w-full max-w-sm mx-auto">
+      <div id="calc-display" class="bg-gray-900 text-white text-right text-5xl font-mono rounded-lg p-4 mb-4 break-all">0</div>
+      <div class="grid grid-cols-4 gap-4">
+        <button class="calc-btn op col-span-2">C</button>
+        <button class="calc-btn op">DEL</button>
+        <button class="calc-btn op">/</button>
+        <button class="calc-btn">7</button>
+        <button class="calc-btn">8</button>
+        <button class="calc-btn">9</button>
+        <button class="calc-btn op">*</button>
+        <button class="calc-btn">4</button>
+        <button class="calc-btn">5</button>
+        <button class="calc-btn">6</button>
+        <button class="calc-btn op">-</button>
+        <button class="calc-btn">1</button>
+        <button class="calc-btn">2</button>
+        <button class="calc-btn">3</button>
+        <button class="calc-btn op">+</button>
+        <button class="calc-btn col-span-2">0</button>
+        <button class="calc-btn">.</button>
+        <button class="calc-btn op">=</button>
+      </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const display = document.getElementById('calc-display');
+            const buttons = document.querySelectorAll('.calc-btn');
+            let currentInput = '0';
+            let operator = null;
+            let prevInput = null;
+            const updateDisplay = () => { display.textContent = currentInput; };
+
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const value = button.textContent;
+                    if (!isNaN(value) || value === '.') {
+                        if (currentInput === '0' && value !== '.') { currentInput = value; } 
+                        else if (value === '.' && currentInput.includes('.')) { return; } 
+                        else { currentInput += value; }
+                    } else if (value === 'C') { currentInput = '0'; operator = null; prevInput = null;
+                    } else if (value === 'DEL') { currentInput = currentInput.slice(0, -1) || '0';
+                    } else if (value === '=') {
+                        if (operator && prevInput !== null) {
+                            try { currentInput = String(eval(`${prevInput} ${operator} ${currentInput}`)); } catch { currentInput = 'Error'; }
+                            operator = null; prevInput = null;
+                        }
+                    } else {
+                        if (operator && prevInput !== null) { 
+                            try { currentInput = String(eval(`${prevInput} ${operator} ${currentInput}`)); } catch { currentInput = 'Error'; }
+                        }
+                        operator = value; prevInput = currentInput; currentInput = '0';
+                    }
+                    updateDisplay();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

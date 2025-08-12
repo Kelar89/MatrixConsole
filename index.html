@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AMU - Pecahkan Masalah Matriks Anda</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Roboto+Mono&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Poppins', sans-serif; background-color: #0d1117; background-image: radial-gradient(circle at 1px 1px, #374151 1px, transparent 0); background-size: 20px 20px; }
+    .nav-link { color: #9ca3af; font-weight: 600; transition: color 0.2s ease-in-out; position: relative; padding-bottom: 4px; text-decoration: none; }
+    .nav-link:hover { color: #ffffff; }
+    .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0; left: 50%; transform: translateX(-50%); background-color: #22d3ee; transition: width 0.3s ease-in-out; }
+    .nav-link:hover::after, .nav-link.is-active::after { width: 100%; }
+    .nav-link.is-active { color: #ffffff; }
+    .cta-button { background-color: #0e7490; color: white; font-weight: 600; padding: 0.6rem 1.25rem; border-radius: 0.5rem; text-decoration: none; transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out; cursor: pointer; }
+    .cta-button:hover { background-color: #0891b2; transform: translateY(-2px); }
+    .operation-card { background-color: #1f2937; border-radius: 0.75rem; padding: 2rem 1.5rem; text-align: center; border: 1px solid #374151; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out; text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; }
+    .operation-card:hover { transform: translateY(-8px); box-shadow: 0 10px 25px rgba(0, 220, 255, 0.1), 0 0 0 2px #22d3ee; border-color: #22d3ee; }
+    .card-icon { font-size: 2.75rem; font-weight: 700; color: #22d3ee; margin-bottom: 1rem; height: 60px; line-height: 60px; user-select: none; }
+    .card-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .card-description { font-size: 0.875rem; color: #9ca3af; min-height: 42px; line-height: 1.5; }
+    #iframe-modal.hidden { display: none; }
+  </style>
+</head>
+<body class="text-white min-h-screen flex flex-col">
+
+  <div id="header-placeholder"></div>
+
+  <main class="flex-grow p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+      <section class="text-center my-16 md:my-24">
+        <h1 class="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-4">
+          Dari Angka ke <span class="text-cyan-400">Jawaban</span>.
+        </h1>
+        <p class="text-lg text-gray-400 max-w-3xl mx-auto">
+          AMU bukan hanya kalkulator. Ini adalah partner Anda untuk memahami setiap langkah, mengubah perhitungan rumit menjadi wawasan yang jelas. Taklukkan setiap matriks dan mulailah sekarang.
+        </p>
+      </section>
+      <section id="kalkulator" class="pt-12">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <a href="inverse.html" class="operation-card"><div class="card-icon">A⁻¹</div><h2 class="card-title">Inverse Matriks</h2><p class="card-description">Mencari matriks balikan dari matriks persegi.</p></a>
+          <a href="penjumlahan.html" class="operation-card"><div class="card-icon">+</div><h2 class="card-title">Penjumlahan</h2><p class="card-description">Menjumlahkan dua matriks dengan ordo yang sama.</p></a>
+          <a href="pengurangan.html" class="operation-card"><div class="card-icon">−</div><h2 class="card-title">Pengurangan</h2><p class="card-description">Mengurangkan dua matriks dengan ordo yang sama.</p></a>
+          <a href="perkalian.html" class="operation-card"><div class="card-icon">×</div><h2 class="card-title">Perkalian</h2><p class="card-description">Mengalikan dua matriks yang memenuhi syarat.</p></a>
+          <a href="determinan.html" class="operation-card"><div class="card-icon">|A|</div><h2 class="card-title">Determinan</h2><p class="card-description">Menghitung nilai determinan dari matriks persegi.</p></a>
+          <a href="persamaan.html" class="operation-card"><div class="card-icon">Ax=b</div><h2 class="card-title">Sistem Persamaan</h2><p class="card-description">Menyelesaikan sistem persamaan linear bentuk Ax = b.</p></a>
+          <a href="transpose.html" class="operation-card"><div class="card-icon">Aᵀ</div><h2 class="card-title">Transpose</h2><p class="card-description">Menukar posisi baris menjadi kolom pada matriks.</p></a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+  <div id="iframe-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+    <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm h-auto relative">
+      <button id="close-modal-btn" class="absolute top-2 right-4 text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
+      <iframe src="kalkulator-sederhana.html" class="w-full h-[600px] border-0 rounded-2xl"></iframe>
+    </div>
+  </div>
+  
+  <script src="main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            const modal = document.getElementById('iframe-modal');
+            const showBtn = document.querySelector('.cta-button');
+            const closeBtn = document.getElementById('close-modal-btn');
+            if (showBtn) {
+                showBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    modal.classList.remove('hidden');
+                });
+            }
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    modal.classList.add('hidden');
+                });
+            }
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        }, 200);
+    });
+  </script>
+</body>
+</html>
