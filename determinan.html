@@ -27,7 +27,7 @@
     .form-input:focus { outline: none; border-color: #22d3ee; box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2); }
     .matrix-cell { font-family: 'Roboto Mono', monospace; text-align: center; min-width: 36px; height: 52px; padding: 0.5rem 0.2rem; font-size: 1rem; transition: all 0.2s ease-in-out; }
     .result-step { background-color: #1f2937; border: 1px solid #374151; padding: 1.25rem; border-radius: 0.75rem; margin-bottom: 1rem; }
-    .btn { padding: 0.6rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; }
+    .btn { padding: 0.6rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
     .btn-green { background-color: #22c55e; color: white; } .btn-green:hover { background-color: #16a34a; }
     .btn-indigo { background-color: #6366f1; color: white; } .btn-indigo:hover { background-color: #4f46e5; }
     .btn-yellow { background-color: #eab308; color: white; } .btn-yellow:hover { background-color: #ca8a04; }
@@ -35,67 +35,70 @@
     .tippy-box[data-theme~='matrix'] { background-color: #0d1117; color: #22d3ee; font-weight: 600; border: 1px solid #22d3ee; }
     .matrix-grid.is-dense .matrix-cell { height: 42px; font-size: 0.8rem; }
     .math-container { overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
+    .section-header { display: flex; align-items: center; gap: 0.75rem; font-size: 1.25rem; font-weight: 700; color: #22d3ee; margin-bottom: 1rem; }
   </style>
 </head>
 <body class="text-white min-h-screen flex flex-col">
 
-  <div id="app-wrapper">
-    <header class="sticky top-0 bg-gray-900/50 backdrop-blur-lg border-b border-gray-800 z-10">
-      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-20">
-          <div class="flex-shrink-0"><a href="index.html" class="text-2xl font-bold text-white">AMU<span class="text-cyan-400">.my.id</span></a></div>
-          <div class="hidden md:block">
-            <div class="ml-10 flex items-baseline space-x-8">
-              <a href="inverse.html" class="nav-link">Inverse</a>
-              <a href="penjumlahan.html" class="nav-link">Penjumlahan</a>
-              <a href="pengurangan.html" class="nav-link">Pengurangan</a>
-              <a href="perkalian.html" class="nav-link">Perkalian</a>
-              <a href="determinan.html" class="nav-link is-active">Determinan</a>
+  <div id="header-placeholder"></div>
+
+  <main class="flex-grow p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+      <h2 class="text-3xl font-bold text-white mb-8 text-center">Kalkulator Determinan Matriks</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="flex flex-col gap-6">
+          <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+            <h2 class="section-header">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 16v-2m0-8v4m-4-2h8m-8 6h8m-8-12h8m-4 16a8 8 0 100-16 8 8 0 000 16z" /></svg>
+              Kontrol & Opsi
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div data-tippy-content="Tentukan ukuran matriks persegi (misal: 3 untuk 3x3)."><label for="matrixSize" class="block text-sm font-medium text-gray-300 mb-1">Ukuran Matriks (n x n)</label><input id="matrixSize" type="number" min="1" max="10" value="3" class="form-input"></div>
+              <div data-tippy-content="Pilih format angka untuk hasil perhitungan." class="sm:col-span-2"><label for="fractionMode" class="block text-sm font-medium text-gray-300 mb-1">Mode Angka</label><select id="fractionMode" class="form-input"><option value="decimal">Desimal</option><option value="fraction">Pecahan</option></select></div>
             </div>
+          </div>
+          <div id="inputSection" class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+            <h2 class="section-header">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                Input Matriks A
+            </h2>
+            <div id="matrixAContainer" class="matrix-grid grid gap-3 justify-center"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <button id="randomizeBtn" class="btn btn-indigo" data-tippy-content="Isi semua sel matriks dengan angka acak.">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.452l-1.391 1.392a.5.5 0 01-.707-.707l1.392-1.391a5.5 5.5 0 018.906-2.148l.143.143L15.312 11.424zM4.688 8.576a5.5 5.5 0 019.201-2.452l1.391-1.392a.5.5 0 01.707.707l-1.392 1.391a5.5 5.5 0 01-8.906 2.148L4.688 8.576z" clip-rule="evenodd" /></svg>
+                Isi Acak
+            </button>
+            <button id="computeBtn" class="btn btn-green" data-tippy-content="Mulai proses perhitungan determinan.">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C3.732 4.943 9.522 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-9.064 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>
+                Hitung Determinan
+            </button>
           </div>
         </div>
-      </nav>
-    </header>
-    <main class="flex-grow p-4 md:p-8">
-      <div class="max-w-7xl mx-auto">
-        <h2 class="text-3xl font-bold text-white mb-8 text-center">Kalkulator Determinan Matriks</h2>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div class="flex flex-col gap-6">
-            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-              <h2 class="text-xl font-bold mb-4 text-cyan-400">Kontrol & Opsi</h2>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div data-tippy-content="Tentukan ukuran matriks persegi (misal: 3 untuk 3x3)."><label for="matrixSize" class="block text-sm font-medium text-gray-300 mb-1">Ukuran Matriks (n x n)</label><input id="matrixSize" type="number" min="1" max="10" value="3" class="form-input"></div>
-                <div data-tippy-content="Pilih format angka untuk hasil perhitungan." class="sm:col-span-2"><label for="fractionMode" class="block text-sm font-medium text-gray-300 mb-1">Mode Angka</label><select id="fractionMode" class="form-input"><option value="decimal">Desimal</option><option value="fraction">Pecahan</option></select></div>
-              </div>
-            </div>
-            <div id="inputSection" class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-              <h2 class="text-xl font-bold mb-4 text-cyan-400">Input Matriks A</h2>
-              <div id="matrixAContainer" class="matrix-grid grid gap-3 justify-center"></div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <button id="randomizeBtn" class="btn btn-indigo" data-tippy-content="Isi semua sel matriks dengan angka acak.">Isi Acak</button>
-              <button id="computeBtn" class="btn btn-green" data-tippy-content="Mulai proses perhitungan determinan.">Hitung Determinan</button>
-            </div>
-          </div>
-          <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 min-h-[400px]">
-            <h2 class="text-xl font-bold mb-4 text-cyan-400">Hasil Perhitungan</h2>
-            <div id="outputContainer" class="bg-gray-900/50 rounded-lg p-4"><div id="output" class="text-gray-400">Masukkan matriks dan tekan "Hitung Determinan" untuk melihat hasilnya di sini.</div></div>
-            <div class="mt-4 flex gap-4">
-              <button id="exportBtn" class="btn btn-yellow" data-tippy-content="Simpan soal dan hasil perhitungan sebagai file PDF.">Export PDF</button>
-              <button id="resetBtn" class="btn btn-red" data-tippy-content="Kosongkan semua sel matriks menjadi 0 dan bersihkan hasil.">Reset</button>
-            </div>
+        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 min-h-[400px]">
+          <h2 class="section-header">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg>
+            Hasil Perhitungan
+          </h2>
+          <div id="outputContainer" class="bg-gray-900/50 rounded-lg p-4"><div id="output" class="text-gray-400">Masukkan matriks dan tekan "Hitung Determinan" untuk melihat hasilnya di sini.</div></div>
+          <div class="mt-4 flex gap-4">
+            <button id="exportBtn" class="btn btn-yellow" data-tippy-content="Simpan soal dan hasil perhitungan sebagai file PDF.">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
+                Export PDF
+            </button>
+            <button id="resetBtn" class="btn btn-red" data-tippy-content="Kosongkan semua sel matriks menjadi 0 dan bersihkan hasil.">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
+                Reset
+            </button>
           </div>
         </div>
       </div>
-    </main>
-  </div>
-  
-  <footer class="bg-gray-900 border-t border-gray-800 mt-20">
-    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
-      <p class="text-gray-400">&copy; 2025 AMU (www.amu.my.id). Dibuat untuk Edukasi dan Kemudahan.</p>
     </div>
-  </footer>
+  </main>
+  
+  <div id="footer-placeholder"></div>
 
+  <script src="main.js"></script>
   <script>
     const matrixAContainer = document.getElementById('matrixAContainer');
     const outputEl = document.getElementById('output');
@@ -147,13 +150,8 @@
 
         const calculateDeterminant = (M) => {
             const size = M.length;
-            if (size === 1) {
-                return M[0][0];
-            }
-            if (size === 2) {
-                const val = M[0][0] * M[1][1] - M[0][1] * M[1][0];
-                return val;
-            }
+            if (size === 1) { return M[0][0]; }
+            if (size === 2) { return M[0][0] * M[1][1] - M[0][1] * M[1][0]; }
             let det = 0;
             for (let j = 0; j < size; j++) {
                 const minor = M.slice(1).map(row => row.filter((_, colIndex) => j !== colIndex));
@@ -168,33 +166,25 @@
              const [[a, b], [c, d]] = A;
              steps.push({
                 explanation: 'Untuk matriks 2x2, gunakan rumus ad - bc.',
-                matrixLatex: `\\det(A) = (${formatNumberLatex(a)})(${formatNumberLatex(d)}) - (${formatNumberLatex(b)})(${formatNumberLatex(c)}) = ${formatNumberLatex(result)}`
+                matrixLatex: `|A| = (${formatNumberLatex(a)})(${formatNumberLatex(d)}) - (${formatNumberLatex(b)})(${formatNumberLatex(c)}) = ${formatNumberLatex(result)}`
              });
         } else if (n === 3) {
             const [r1, r2, r3] = A;
-            const p1 = r1[0] * r2[1] * r3[2], p2 = r1[1] * r2[2] * r3[0], p3 = r1[2] * r2[0] * r3[1];
-            const n1 = r1[2] * r2[1] * r3[0], n2 = r1[0] * r2[2] * r3[1], n3 = r1[1] * r2[0] * r3[2];
-            const sarrusMatrix = `\\begin{vmatrix} 
-                ${formatNumberLatex(r1[0])} & ${formatNumberLatex(r1[1])} & ${formatNumberLatex(r1[2])} \\\\
-                ${formatNumberLatex(r2[0])} & ${formatNumberLatex(r2[1])} & ${formatNumberLatex(r2[2])} \\\\
-                ${formatNumberLatex(r3[0])} & ${formatNumberLatex(r3[1])} & ${formatNumberLatex(r3[2])} 
-            \\end{vmatrix} \\begin{matrix} 
-                ${formatNumberLatex(r1[0])} & ${formatNumberLatex(r1[1])} \\\\
-                ${formatNumberLatex(r2[0])} & ${formatNumberLatex(r2[1])} \\\\
-                ${formatNumberLatex(r3[0])} & ${formatNumberLatex(r3[1])}
-            \\end{matrix}`;
+            const p1 = r1[0]*r2[1]*r3[2], p2 = r1[1]*r2[2]*r3[0], p3 = r1[2]*r2[0]*r3[1];
+            const n1 = r1[2]*r2[1]*r3[0], n2 = r1[0]*r2[2]*r3[1], n3 = r1[1]*r2[0]*r3[2];
+            const sarrusMatrix = `\\begin{vmatrix} ${r1.map(formatNumberLatex).join('&')} \\\\ ${r2.map(formatNumberLatex).join('&')} \\\\ ${r3.map(formatNumberLatex).join('&')} \\end{vmatrix} \\begin{matrix} ${r1.slice(0,2).map(formatNumberLatex).join('&')} \\\\ ${r2.slice(0,2).map(formatNumberLatex).join('&')} \\\\ ${r3.slice(0,2).map(formatNumberLatex).join('&')} \\end{matrix}`;
             steps.push({
-                explanation: 'Untuk matriks 3x3, gunakan Aturan Sarrus. Jumlahkan hasil perkalian diagonal dari kiri atas ke kanan bawah, lalu kurangi dengan jumlah hasil perkalian diagonal dari kanan atas ke kiri bawah.',
+                explanation: 'Untuk matriks 3x3, gunakan Aturan Sarrus. Jumlahkan hasil perkalian diagonal kanan, lalu kurangi dengan jumlah hasil perkalian diagonal kiri.',
                 matrixLatex: sarrusMatrix
             });
             steps.push({
                 explanation: 'Perhitungannya menjadi:',
-                matrixLatex: `\\det(A) = (${formatNumberLatex(p1)} + ${formatNumberLatex(p2)} + ${formatNumberLatex(p3)}) - (${formatNumberLatex(n1)} + ${formatNumberLatex(n2)} + ${formatNumberLatex(n3)}) = ${formatNumberLatex(result)}`
+                matrixLatex: `|A| = (${formatNumberLatex(p1)} + ${formatNumberLatex(p2)} + ${formatNumberLatex(p3)}) - (${formatNumberLatex(n1)} + ${formatNumberLatex(n2)} + ${formatNumberLatex(n3)}) = ${formatNumberLatex(result)}`
             });
         } else if (n > 3) {
             steps.push({
-                explanation: `Untuk matriks ${n}x${n}, metode Ekspansi Kofaktor digunakan. Perhitungan ini kompleks dan dilakukan secara rekursif.`,
-                matrixLatex: `\\det(A) = ${formatNumberLatex(result)}`
+                explanation: `Untuk matriks ${n}x${n}, metode Ekspansi Kofaktor digunakan. Hasil akhir perhitungannya adalah:`,
+                matrixLatex: `|A| = ${formatNumberLatex(result)}`
             });
         }
         
@@ -214,7 +204,7 @@
                 outputEl.innerHTML += `<div class="result-step"><div class="text-sm font-semibold text-cyan-400 mb-2">Langkah ${idx + 1}:</div><p class="text-gray-300 text-base mb-3">${s.explanation}</p><div class="math-container">\\(${s.matrixLatex}\\)</div></div>`;
             });
 
-            outputEl.innerHTML += `<div class="mt-4 pt-4 border-t-2 border-green-500"><h3 class="font-bold text-green-400 text-lg">Hasil Akhir: Determinan</h3><div class="math-container text-2xl font-mono">\\(\\det(A) = ${formatNumberLatex(res.result)}\\)</div></div>`;
+            outputEl.innerHTML += `<div class="mt-4 pt-4 border-t-2 border-green-500"><h3 class="font-bold text-green-400 text-lg">Hasil Akhir: Determinan</h3><div class="math-container text-2xl font-mono">\\(|A| = ${formatNumberLatex(res.result)}\\)</div></div>`;
             
             if (window.MathJax) MathJax.typesetPromise([outputEl]).catch(err => console.log('MathJax Error: ', err));
         }, 50);
@@ -261,7 +251,7 @@
       const res = determinantWithExplanation(A);
 
       let reportHTML = `<style>body { font-family: 'Poppins', sans-serif; color: #e5e7eb; font-size: 14px; } h1, h2, h3 { color: #38bdf8; margin: 0; padding: 0;} p { margin: 0; padding: 0; } .section { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; }</style>`;
-      reportHTML += `<div style="padding: 1rem;"><div style="text-align:center; margin-bottom: 1.5rem;"><h1>${document.getElementById('mainTitle').innerText}</h1><p style="font-size: 1.1em; color: #9ca3af; margin-top: 0.25rem;">Laporan Perhitungan Determinan Matriks</p></div>`;
+      reportHTML += `<div style="padding: 1rem;"><div style="text-align:center; margin-bottom: 1.5rem;"><h1>AMU.my.id</h1><p style="font-size: 1.1em; color: #9ca3af; margin-top: 0.25rem;">Laporan Perhitungan Determinan Matriks</p></div>`;
       reportHTML += `<div class="section"><h2 style="font-size: 1.25em; margin-bottom: 1rem; text-align: center;">Input Matriks A</h2>${formatMatrixAsHTMLTable(A)}</div>`;
       reportHTML += `<hr style="margin: 1.5rem 0; border-color: #374151; border-style: dashed;"><div><h2 style="font-size: 1.25em; margin-bottom: 1rem;">Hasil Perhitungan</h2>`;
       reportHTML += `<div class="section" style="border-color: #22c55e; text-align: center;"><h3 style="font-weight: 600; color: #4ade80; margin-bottom: 0.5rem;">Hasil Akhir: Determinan</h3><p style="font-size: 1.5em; font-family: 'Roboto Mono', monospace;">${formatNumberAsHTML(res.result)}</p></div>`;

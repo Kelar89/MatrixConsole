@@ -6,9 +6,7 @@
   <title>AMU - Pecahkan Masalah Matriks Anda</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Roboto+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     body { font-family: 'Poppins', sans-serif; background-color: #0d1117; background-image: radial-gradient(circle at 1px 1px, #374151 1px, transparent 0); background-size: 20px 20px; }
@@ -17,13 +15,14 @@
     .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0; left: 50%; transform: translateX(-50%); background-color: #22d3ee; transition: width 0.3s ease-in-out; }
     .nav-link:hover::after, .nav-link.is-active::after { width: 100%; }
     .nav-link.is-active { color: #ffffff; }
-    .cta-button { background-color: #0e7490; color: white; font-weight: 600; padding: 0.6rem 1.25rem; border-radius: 0.5rem; text-decoration: none; transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out; cursor: pointer; }
+    .cta-button { background-color: #0e7490; color: white; font-weight: 600; padding: 0.6rem 1.25rem; border-radius: 0.5rem; transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out; cursor: pointer; }
     .cta-button:hover { background-color: #0891b2; transform: translateY(-2px); }
-    .operation-card { background-color: #1f2937; border-radius: 0.75rem; padding: 2rem 1.5rem; text-align: center; border: 1px solid #374151; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out; text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; }
+    .operation-card { background-color: #1f2937; border-radius: 0.75rem; padding: 2rem 1.5rem; text-align: center; border: 1px solid #374151; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out; text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; position: relative; }
     .operation-card:hover { transform: translateY(-8px); box-shadow: 0 10px 25px rgba(0, 220, 255, 0.1), 0 0 0 2px #22d3ee; border-color: #22d3ee; }
-    .card-icon { font-size: 2.75rem; font-weight: 700; color: #22d3ee; margin-bottom: 1rem; height: 60px; line-height: 60px; user-select: none; }
-    .card-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; }
-    .card-description { font-size: 0.875rem; color: #9ca3af; min-height: 42px; line-height: 1.5; }
+    .card-icon { color: #22d3ee; margin-bottom: 1rem; height: 60px; transition: transform 0.3s ease; }
+    .operation-card:hover .card-icon { transform: scale(1.15); }
+    .tooltip { visibility: hidden; opacity: 0; position: absolute; bottom: -40px; background: #111827; color: #f3f4f6; padding: 6px 10px; font-size: 0.75rem; border-radius: 0.5rem; white-space: nowrap; transition: all 0.2s ease; border: 1px solid #374151; }
+    .operation-card:hover .tooltip { visibility: visible; opacity: 1; }
     #iframe-modal.hidden { display: none; }
   </style>
 </head>
@@ -33,23 +32,36 @@
 
   <main class="flex-grow p-4 md:p-8">
     <div class="max-w-6xl mx-auto">
-      <section class="text-center my-16 md:my-24">
-        <h1 class="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-4">
+      <section class="text-center my-16">
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-4">
           Dari Angka ke <span class="text-cyan-400">Jawaban</span>.
         </h1>
         <p class="text-lg text-gray-400 max-w-3xl mx-auto">
-          AMU bukan hanya kalkulator. Ini adalah partner Anda untuk memahami setiap langkah, mengubah perhitungan rumit menjadi wawasan yang jelas. Taklukkan setiap matriks dan mulailah sekarang.
+          AMU membantu memahami setiap langkah perhitungan matriks secara interaktif dan menyenangkan.
         </p>
+        <a href="#kalkulator" class="mt-6 inline-block cta-button text-lg">Mulai Hitung</a>
       </section>
+
       <section id="kalkulator" class="pt-12">
+        <h2 class="text-2xl font-bold text-center mb-8 text-cyan-400">Fitur Kalkulator Matriks</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          <a href="inverse.html" class="operation-card"><div class="card-icon">A⁻¹</div><h2 class="card-title">Inverse Matriks</h2><p class="card-description">Mencari matriks balikan dari matriks persegi.</p></a>
-          <a href="penjumlahan.html" class="operation-card"><div class="card-icon">+</div><h2 class="card-title">Penjumlahan</h2><p class="card-description">Menjumlahkan dua matriks dengan ordo yang sama.</p></a>
-          <a href="pengurangan.html" class="operation-card"><div class="card-icon">−</div><h2 class="card-title">Pengurangan</h2><p class="card-description">Mengurangkan dua matriks dengan ordo yang sama.</p></a>
-          <a href="perkalian.html" class="operation-card"><div class="card-icon">×</div><h2 class="card-title">Perkalian</h2><p class="card-description">Mengalikan dua matriks yang memenuhi syarat.</p></a>
-          <a href="determinan.html" class="operation-card"><div class="card-icon">|A|</div><h2 class="card-title">Determinan</h2><p class="card-description">Menghitung nilai determinan dari matriks persegi.</p></a>
-          <a href="persamaan.html" class="operation-card"><div class="card-icon">Ax=b</div><h2 class="card-title">Sistem Persamaan</h2><p class="card-description">Menyelesaikan sistem persamaan linear bentuk Ax = b.</p></a>
-          <a href="transpose.html" class="operation-card"><div class="card-icon">Aᵀ</div><h2 class="card-title">Transpose</h2><p class="card-description">Menukar posisi baris menjadi kolom pada matriks.</p></a>
+          <a href="inverse.html" class="operation-card"><svg class="card-icon w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 4h18M3 10h18M3 16h18M3 22h18" /></svg><h3 class="card-title">Inverse Matriks</h3><p class="card-description">Mencari matriks balikan dari matriks persegi.</p><span class="tooltip">Contoh: Balikan matriks 2x2</span></a>
+          <a href="penjumlahan.html" class="operation-card"><svg class="card-icon w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M12 5v14M5 12h14" /></svg><h3 class="card-title">Penjumlahan</h3><p class="card-description">Menjumlahkan dua matriks dengan ordo sama.</p><span class="tooltip">Contoh: A + B</span></a>
+          <a href="pengurangan.html" class="operation-card"><svg class="card-icon w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M5 12h14" /></svg><h3 class="card-title">Pengurangan</h3><p class="card-description">Mengurangkan dua matriks dengan ordo sama.</p><span class="tooltip">Contoh: A - B</span></a>
+          <a href="perkalian.html" class="operation-card"><svg class="card-icon w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M5 5l14 14M19 5l-14 14" /></svg><h3 class="card-title">Perkalian</h3><p class="card-description">Mengalikan dua matriks yang memenuhi syarat.</p><span class="tooltip">Contoh: A x B</span></a>
+          <a href="determinan.html" class="operation-card"><svg class="card-icon w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M4 4h16v16H4z" /></svg><h3 class="card-title">Determinan</h3><p class="card-description">Menghitung nilai determinan matriks.</p><span class="tooltip">Contoh: det(A)</span></a>
+          <a href="persamaan.html" class="operation-card"><svg class="card-icon w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h8m4 0h4M4 18h16" /></svg><h3 class="card-title">Persamaan Linear</h3><p class="card-description">Menyelesaikan sistem persamaan linear.</p><span class="tooltip">Contoh: Ax = b</span></a>
+          <a href="transpose.html" class="operation-card"><svg class="card-icon w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M4 4h7v7H4zM13 13h7v7h-7z" /></svg><h3 class="card-title">Transpose</h3><p class="card-description">Menukar baris dan kolom matriks.</p><span class="tooltip">Contoh: Aᵀ</span></a>
+        </div>
+      </section>
+
+      <section class="mt-20">
+        <h2 class="text-2xl font-bold text-center mb-10 text-cyan-400">Mengapa Memilih AMU.my.id?</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div><svg class="mx-auto w-12 h-12 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 1.343-3 3 0 3 3 6 3 6s3-3 3-6c0-1.657-1.343-3-3-3z" /><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 100 20 10 10 0 000-20z" /></svg><p class="mt-2 text-gray-300 font-semibold">Akses Tanpa Batas</p></div>
+          <div><svg class="mx-auto w-12 h-12 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 4h16v12H4z" /><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8 20h8" /></svg><p class="mt-2 text-gray-300 font-semibold">Interaktif & Mudah</p></div>
+          <div><svg class="mx-auto w-12 h-12 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 20l9-5-9-5-9 5 9 5z" /><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 10l9-5-9-5-9 5 9 5z" /></svg><p class="mt-2 text-gray-300 font-semibold">Pembahasan Lengkap</p></div>
+          <div><svg class="mx-auto w-12 h-12 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2" ry="2" /><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01" /></svg><p class="mt-2 text-gray-300 font-semibold">Mobile Friendly</p></div>
         </div>
       </section>
     </div>
@@ -67,27 +79,27 @@
   <script src="main.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // Jeda untuk memastikan header dari main.js sudah dimuat
         setTimeout(() => {
             const modal = document.getElementById('iframe-modal');
-            const showBtn = document.querySelector('.cta-button');
+            const closeModal = () => modal.classList.add('hidden');
+            const openModal = () => modal.classList.remove('hidden');
+
+            // Cari semua tombol CTA (desktop dan mobile)
+            const showBtnDesktop = document.getElementById('cta-button-desktop');
+            const showBtnMobile = document.getElementById('cta-button-mobile');
             const closeBtn = document.getElementById('close-modal-btn');
-            if (showBtn) {
-                showBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    modal.classList.remove('hidden');
-                });
-            }
-            if (closeBtn) {
-                closeBtn.addEventListener('click', () => {
-                    modal.classList.add('hidden');
-                });
-            }
+
+            if (showBtnDesktop) showBtnDesktop.addEventListener('click', openModal);
+            if (showBtnMobile) showBtnMobile.addEventListener('click', openModal);
+            if (closeBtn) closeBtn.addEventListener('click', closeModal);
+            
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
-                    modal.classList.add('hidden');
+                    closeModal();
                 }
             });
-        }, 200);
+        }, 300); // Jeda sedikit lebih lama untuk keamanan
     });
   </script>
 </body>

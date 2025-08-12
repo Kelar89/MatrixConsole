@@ -1,11 +1,13 @@
 <header class="sticky top-0 bg-gray-900/50 backdrop-blur-lg border-b border-gray-800 z-10">
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-20">
+      
       <div class="flex-shrink-0">
         <a href="index.html" class="text-2xl font-bold text-white">
           AMU<span class="text-cyan-400">.my.id</span>
         </a>
       </div>
+
       <div class="hidden md:block">
         <div id="nav-links" class="ml-10 flex items-baseline space-x-8">
           <a href="inverse.html" class="nav-link">Inverse</a>
@@ -14,12 +16,36 @@
           <a href="perkalian.html" class="nav-link">Perkalian</a>
           <a href="determinan.html" class="nav-link">Determinan</a>
           <a href="persamaan.html" class="nav-link">Persamaan</a>
-          <a href="transpose.html" class="nav-link">Transpose</a>git pull origin main
+          <a href="transpose.html" class="nav-link">Transpose</a>
         </div>
       </div>
+
       <div class="hidden md:block">
-        <button class="cta-button">Kalkulator Sederhana</button>
+        <button id="cta-button-desktop" class="cta-button">Kalkulator Sederhana</button>
       </div>
+
+      <div class="md:hidden">
+        <button id="mobile-menu-button" class="text-gray-300 hover:text-white focus:outline-none focus:text-white">
+          <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
     </div>
   </nav>
+
+  <div id="mobile-menu" class="hidden md:hidden bg-gray-900 border-t border-gray-800">
+    <div class="px-4 pt-4 pb-4 space-y-2">
+      <a href="inverse.html" class="block nav-link text-center py-2">Inverse</a>
+      <a href="penjumlahan.html" class="block nav-link text-center py-2">Penjumlahan</a>
+      <a href="pengurangan.html" class="block nav-link text-center py-2">Pengurangan</a>
+      <a href="perkalian.html" class="block nav-link text-center py-2">Perkalian</a>
+      <a href="determinan.html" class="block nav-link text-center py-2">Determinan</a>
+      <a href="persamaan.html" class="block nav-link text-center py-2">Persamaan</a>
+      <a href="transpose.html" class="block nav-link text-center py-2">Transpose</a>
+      <button id="cta-button-mobile" class="cta-button w-full mt-3">Kalkulator Sederhana</button>
+    </div>
+  </div>
 </header>
