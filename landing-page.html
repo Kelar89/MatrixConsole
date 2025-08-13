@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AMU.my.id — Pahami Matriks Cepat,Mudah,Serta Lebih Jelas</title><br>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --bg: #0f1a21;
+        --panel: rgba(255, 255, 255, .05);
+        --border: rgba(255, 255, 255, .08);
+        --muted: #b6c2c9;
+        --emerald: #10b981;
+        --cyan: #22d3ee;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: #e6eef2; font-family: 'Poppins', ui-sans-serif, system-ui; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+    
+    /* Navigasi */
+    .nav { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; position: sticky; top: 0; z-index: 110; background: transparent; transition: background .25s, backdrop-filter .25s, box-shadow .25s; }
+    .nav.scrolled { background: rgba(7, 12, 15, 0.6); backdrop-filter: blur(8px); box-shadow: 0 6px 20px rgba(0, 0, 0, .45); }
+    .brand { font-weight: 900; font-size: 20px; }
+    .brand .accent { color: var(--emerald); }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a { font-weight: 600; color: var(--muted); transition: color 0.2s; }
+    .nav-links a:hover { color: white; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 20px; border-radius: 12px; font-weight: 700; border: 1px solid transparent; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    .btn-primary { background: var(--emerald); border-color: var(--emerald); color: #081119; box-shadow: 0 8px 26px rgba(16, 185, 129, .14); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(16, 185, 129, .2); }
+    .btn-outline { border: 1px solid rgba(255, 255, 255, .1); color: #e5e7eb; }
+    .hamburger-btn { display: none; }
+    .mobile-menu { display: none; }
+
+    /* Hero */
+    .hero { padding: 64px 0; }
+    .hero-inner { display: grid; gap: 28px; align-items: center; }
+    .title { font-size: 2.5rem; line-height: 1.1; font-weight: 900; margin: 0; color: #eef6f8; text-shadow: 0 6px 18px rgba(0, 0, 0, .6); }
+    .sub { color: var(--muted); margin-top: 12px; font-size: 1.1rem; max-width: 640px; }
+    .cta-row { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: 0 8px 30px rgba(3, 6, 8, .45); }
+    .counters { display: grid; gap: 16px; margin-top: 24px; }
+    .counter-num { font-size: 2rem; font-weight: 900; color: #eef6f8; }
+
+    /* Sections */
+    .section { padding: 64px 0; }
+    .section h2 { text-align: center; margin-bottom: 48px; font-size: 2.25rem; font-weight: 800; }
+    .features { display: grid; gap: 16px; }
+    .feature { background: var(--panel); border: 1px solid var(--border); padding: 24px; border-radius: 14px; display: flex; gap: 16px; align-items: flex-start; transition: transform .25s; }
+    .feature:hover { transform: translateY(-6px); }
+    .feature .icon { width: 48px; height: 48px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg, rgba(255, 255, 255, .05), transparent); border: 1px solid rgba(255, 255, 255, .05); }
+    .icon svg { width: 28px; height: 28px; color: var(--cyan); }
+    .pricing { display: grid; gap: 24px; align-items: start; }
+    .price { padding: 24px; text-align: center; position: relative; }
+    .price .price-amount { font-size: 2.5rem; font-weight: 900; margin: 16px 0; }
+    .list { list-style: none; padding: 0; margin: 16px 0 24px 0; text-align: left; }
+    .list li { display: flex; gap: 12px; align-items: center; color: #d2dbe0; margin-bottom: 12px; }
+    .check { color: var(--emerald); }
+    .popular { border: 2px solid var(--emerald); }
+    .faq details { background: var(--panel); border: 1px solid var(--border); padding: 20px; border-radius: 12px; margin-bottom: 1rem; }
+    .faq summary { font-weight: 700; font-size: 1.1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .faq summary::after { content: '+'; font-size: 1.5rem; transition: transform 0.2s; }
+    .faq details[open] summary::after { transform: rotate(45deg); }
+
+    /* Animasi */
+    [data-reveal] { opacity: 0; transform: translateY(20px); transition: opacity .8s ease, transform .8s ease; }
+    [data-reveal].revealed { opacity: 1; transform: none; }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+        .hero-inner { grid-template-columns: 1fr 1fr; }
+        .counters { grid-template-columns: repeat(3, 1fr); }
+        .features { grid-template-columns: repeat(3, 1fr); }
+        .pricing { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 767px) {
+        .nav-links { display: none; }
+        .hamburger-btn { display: block; z-index: 100; }
+        .mobile-menu { display: block; position: fixed; top: 0; left: -100%; width: 100%; height: 100%; background: rgba(15, 26, 33, 0.95); backdrop-filter: blur(10px); transition: left 0.3s ease-in-out; text-align: center; padding-top: 100px; }
+        .mobile-menu.is-open { left: 0; }
+        .mobile-menu a { display: block; font-size: 1.5rem; font-weight: 700; padding: 1rem 0; }
+        .title { font-size: 2.2rem; }
+    }
+</style>
+</head>
+<body>
+
+<div id="scroll-progress" aria-hidden="true"></div>
+
+<header class="container nav" id="navbar">
+  <a href="landing-page.html" class="brand">AMU<span class="accent">.my.id</span></a>
+  <div class="nav-links">
+    <a href="#fitur">Fitur</a>
+    <a href="#harga">Harga</a>
+    <a href="demo-inverse.html">Demo</a>
+    <a class="btn btn-primary" href="daftar.html">Daftar Sekarang</a>
+  </div>
+  <button class="hamburger-btn" id="hamburger-btn" aria-label="Buka Menu">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+  </button>
+</header>
+<div class="mobile-menu" id="mobile-menu">
+    <a href="#fitur">Fitur</a>
+    <a href="#harga">Harga</a>
+    <a href="demo-inverse.html">Demo</a>
+    <a class="btn btn-primary mt-4" href="daftar.html">Daftar Sekarang</a>
+</div>
+
+<section class="hero" id="top">
+  <div class="container hero-inner">
+    <div class="space-y-4">
+      <h1 class="title" data-reveal>Pahami Matriks <br> Cepat , Mudah , Jelas.</h1>
+      <p class="sub" data-reveal>Visual interaktif, penjelasan langkah-demi-langkah, dan latihan tak terbatas. Untuk Siswa, Orang Tua, dan Guru yang menginginkan hasil nyata.</p>
+      <div class="cta-row" data-reveal>
+        <a class="btn btn-primary" href="daftar.html">Daftar & Dapatkan Akses</a>
+        <a class="btn btn-outline" href="demo-inverse.html">Coba Demo Gratis</a>
+      </div>
+      <div class="counters" data-reveal>
+        <div class="panel"><div class="counter-num"><span class="counter" data-target="1200">0</span>+</div><div style="color:var(--muted)">Siswa Terbantu</div></div>
+        <div class="panel"><div class="counter-num"><span class="counter" data-target="27">0</span>%</div><div style="color:var(--muted)">Rata-Rata Nilai Naik</div></div>
+        <div class="panel"><div class="counter-num"><span class="counter" data-target="18">0</span>mnt</div><div style="color:var(--muted)">Waktu Belajar Efektif</div></div>
+      </div>
+    </div>
+    <div class="illu" data-reveal>
+<svg class="w-full h-full" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <path d="M 40 40 L 160 40 L 160 160 L 40 160 Z" fill="none" stroke="rgba(55, 65, 81, 0.3)" stroke-width="1"/>
+  <path d="M 40 100 h 120 M 100 40 v 120" stroke="rgba(55, 65, 81, 0.3)" stroke-width="1"/>
+  <g stroke-width="2" filter="url(#glow)">
+    <rect x="60" y="60" width="80" height="80" rx="10" fill="rgba(16,185,129,0.05)" stroke="var(--emerald)"/>
+    <circle cx="80" cy="80" r="5" fill="var(--cyan)" stroke="var(--cyan)"/>
+    <circle cx="120" cy="80" r="5" fill="white" stroke="white"/>
+    <circle cx="80" cy="120" r="5" fill="white" stroke="white"/>
+    <circle cx="120" cy="120" r="5" fill="var(--cyan)" stroke="var(--cyan)"/>
+    <path d="M 80 80 L 120 120 M 120 80 L 80 120" stroke="rgba(255,255,255,0.2)" stroke-dasharray="4"/>
+  </g>
+</svg>
+    </div>
+  </div>
+</section>
+
+<section id="fitur" class="section">
+  <div class="container">
+    <h2 data-reveal>Fitur Utama yang Membuat Perbedaan</h2>
+    <div class="features">
+      <div class="feature" data-reveal><div class="icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25a8.967 8.967 0 011.932 4.267c.42 1.595 1.286 3.06 2.415 4.064a4.5 4.5 0 01-1.972 7.724c-1.222.44-2.503.655-3.773.655A8.967 8.967 0 012.25 12c0-1.777.521-3.443 1.442-4.839C5.13 5.42 6.96 3.98 9 3.255z" /></svg></div><div><h3>Visual Interaktif</h3><p style="color:var(--muted)">Langkah demi langkah divisualisasikan agar mudah diikuti.</p></div></div>
+      <div class="feature" data-reveal><div class="icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" /></svg></div><div><h3>Latihan Tak Terbatas</h3><p style="color:var(--muted)">Buat soal-soal baru secara acak untuk menguji pemahaman.</p></div></div>
+      <div class="feature" data-reveal><div class="icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75l3 3m0 0l3-3m-3 3v-7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><div><h3>Ekspor ke PDF</h3><p style="color:var(--muted)">Simpan soal dan jawaban lengkap sebagai bahan belajar.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="harga" class="section">
+  <div class="container">
+    <h2 data-reveal>Paket Fleksibel untuk Semua Kebutuhan</h2>
+    <div class="pricing">
+        <div class="panel price" data-reveal><span class="pricing-title">Personal</span><div class="price-amount">Rp 25.000<small>/bln</small></div><ul class="list"><li><span class="check">✓</span>Akses semua kalkulator</li><li><span class="check">✓</span>Penjelasan langkah-demi-langkah</li><li><span class="check">✓</span>Ekspor hasil ke PDF</li></ul><a class="btn btn-outline" href="daftar.html" style="width:100%">Pilih Paket</a></div>
+        <div class="panel price popular" data-reveal><div class="ribbon">REKOMENDASI</div><span class="pricing-title">Profesional</span><div class="price-amount">Rp 50.000<small>/bln</small></div><ul class="list"><li><span class="check">✓</span>Semua fitur di paket Personal</li><li><span class="check">✓</span>Dukungan prioritas</li><li><span class="check">✓</span>Akses ke materi & update terbaru</li></ul><a class="btn btn-primary" href="daftar.html" style="width:100%">Pilih Paket</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="section faq">
+  <div class="container" style="max-width: 800px">
+    <h2 data-reveal>Pertanyaan Umum</h2>
+    <div data-reveal>
+        <details><summary>Bagaimana cara kerjanya?</summary><p style="color:var(--muted); margin-top:12px;">Setelah berlangganan, Anda akan mendapatkan akun untuk login. Semua kalkulator akan terbuka dan bisa Anda gunakan tanpa batas.</p></details>
+        <details><summary>Metode pembayaran apa yang diterima?</summary><p style="color:var(--muted); margin-top:12px;">Kami menerima pembayaran melalui transfer bank, GoPay, OVO, dan metode pembayaran digital lainnya.</p></details>
+        <details><summary>Bisakah saya berhenti berlangganan kapan saja?</summary><p style="color:var(--muted); margin-top:12px;">Tentu saja. Anda bisa membatalkan paket langganan Anda kapan pun tanpa ada biaya tambahan.</p></details>
+    </div>
+  </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const progress = document.getElementById('scroll-progress');
+    const navbar = document.getElementById('navbar');
+    const revealElements = document.querySelectorAll('[data-reveal]');
+    const counters = document.querySelectorAll('.counter');
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    // Scroll Progress
+    window.addEventListener('scroll', () => {
+        const scroll = window.scrollY;
+        const height = document.documentElement.scrollHeight - window.innerHeight;
+        if (progress) progress.style.width = `${(scroll / height) * 100}%`;
+        if (navbar) {
+            if (window.scrollY > 20) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        }
+    });
+
+    // Reveal on Scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('revealed');
+        });
+    }, { threshold: 0.1 });
+    revealElements.forEach(el => observer.observe(el));
+
+    // Counter Animation
+    const animateCounter = (counter) => {
+        const target = +counter.dataset.target;
+        const inc = target / 100;
+        let current = 0;
+        const updateCount = () => {
+            if (current < target) {
+                current = Math.ceil(current + inc);
+                counter.innerText = Math.ceil(current);
+                setTimeout(updateCount, 20);
+            } else {
+                counter.innerText = target;
+            }
+        };
+        updateCount();
+    };
+    const counterObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    counters.forEach(counter => counterObserver.observe(counter));
+
+    // Mobile Menu Toggle
+    hamburgerBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('is-open');
+    });
+});
+</script>
+</body>
+</html>

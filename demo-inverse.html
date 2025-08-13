@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMU - Demo Kalkulator Inverse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #0d1117; background-image: radial-gradient(circle at 1px 1px, #374151 1px, transparent 0); background-size: 20px 20px; }
+        .form-input { background-color: #0d1117; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.6rem 0.8rem; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
+        .form-input:focus { outline: none; border-color: #22d3ee; box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2); }
+        .matrix-cell { font-family: 'Roboto Mono', monospace; text-align: center; height: 52px; font-size: 1rem; }
+        .btn { padding: 0.6rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .btn-green { background-color: #22c55e; color: white; } .btn-green:hover { background-color: #16a34a; }
+        .btn-indigo { background-color: #6366f1; color: white; } .btn-indigo:hover { background-color: #4f46e5; }
+        .section-header { display: flex; align-items: center; gap: 0.75rem; font-size: 1.25rem; font-weight: 700; color: #22d3ee; margin-bottom: 1rem; }
+        .math-container { overflow-x: auto; padding-bottom: 0.5rem; }
+        .result-step { background-color: #1f2937; border: 1px solid #374151; padding: 1.25rem; border-radius: 0.75rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body class="text-white">
+
+    <div class="sticky top-0 bg-emerald-600 text-white text-center p-3 z-20 shadow-lg">
+        Anda sedang mencoba versi demo. <a href="landing-page.html" class="font-bold underline hover:text-emerald-100">Dapatkan akses penuh ke semua fitur sekarang!</a>
+    </div>
+
+    <main class="p-4 md:p-8">
+        <div class="max-w-7xl mx-auto">
+          <h2 class="text-3xl font-bold text-white mb-8 text-center">Demo Kalkulator Inverse Matriks</h2>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="flex flex-col gap-6">
+                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                    <h2 class="section-header">Kontrol & Opsi (Demo)</h2>
+                    <p class="text-gray-400">Di versi penuh, Anda bisa mengubah ukuran matriks (hingga 10x10), memilih mode pecahan, dan mengekspor ke PDF.</p>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                    <h2 class="section-header">Input Matriks A (2x2)</h2>
+                    <div id="matrixAContainer" class="matrix-grid grid grid-cols-2 gap-3 justify-center"></div>
+                </div>
+                 <div class="grid grid-cols-2 gap-4">
+                    <button id="randomizeBtn" class="btn btn-indigo">Isi Acak</button>
+                    <button id="computeBtn" class="btn btn-green">Hitung Inverse</button>
+                 </div>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                <h2 class="section-header">Hasil Perhitungan</h2>
+                <div id="output" class="text-gray-400">Tekan "Hitung Inverse" untuk melihat hasilnya di sini.</div>
+            </div>
+          </div>
+        </div>
+    </main>
+    <script>
+        const matrixAContainer = document.getElementById('matrixAContainer');
+        const outputEl = document.getElementById('output');
+        const formatNumberLatex = (x) => math.format(x, { precision: 4 });
+        const formatMatrixLatex = (M) => `\\begin{bmatrix}${M.map(r => r.map(formatNumberLatex).join(' & ')).join(' \\\\ ')}\\end{bmatrix}`;
+        const createGrid = (container, n) => {
+            container.innerHTML = '';
+            for (let i = 0; i < n * n; i++) {
+                const inp = document.createElement('input');
+                inp.type = 'number';
+                inp.step = 'any';
+                inp.className = 'form-input matrix-cell';
+                inp.value = Math.floor(Math.random() * 10) - 4;
+                container.appendChild(inp);
+            }
+        };
+        const getMatrixFrom = (container, n) => Array.from(container.querySelectorAll('input')).reduce((acc, inp, i) => {
+            const row = Math.floor(i / n);
+            if (!acc[row]) acc[row] = [];
+            acc[row].push(isNaN(parseFloat(inp.value)) ? 0 : parseFloat(inp.value));
+            return acc;
+        }, []);
+        const inverseWithExplanation = (A) => {
+            const n = A.length;
+            if (n !== 2) return { success: false, message: 'Versi demo hanya mendukung matriks 2x2.' };
+            const [[a, b], [c, d]] = A;
+            const det = a * d - b * c;
+            let steps = [];
+            steps.push({
+                explanation: `Menghitung determinan (ad - bc) dari matriks A.`,
+                matrixLatex: `\\det(A) = (${formatNumberLatex(a)})(${formatNumberLatex(d)}) - (${formatNumberLatex(b)})(${formatNumberLatex(c)}) = ${formatNumberLatex(det)}`
+            });
+            if (Math.abs(det) < 1e-12) return { success: false, message: 'Determinan adalah 0, matriks ini tidak memiliki invers.' };
+            const adj = [[d, -b], [-c, a]];
+            steps.push({
+                explanation: `Membuat matriks Adjoin dari A.`,
+                matrixLatex: `\\text{adj}(A) = ${formatMatrixLatex(adj)}`
+            });
+            const inverse = adj.map(row => row.map(val => val / det));
+            steps.push({
+                explanation: `Mengalikan matriks Adjoin dengan \\(1/\\det(A)\\).`,
+                matrixLatex: `X = \\frac{1}{${formatNumberLatex(det)}} ${formatMatrixLatex(adj)} = ${formatMatrixLatex(inverse)}`
+            });
+            return { success: true, result: inverse, steps };
+        };
+        const computeInverse = () => {
+            outputEl.innerHTML = `<div class="text-center text-gray-400">Menghitung...</div>`;
+            setTimeout(() => {
+                const A = getMatrixFrom(matrixAContainer, 2);
+                const res = inverseWithExplanation(A);
+                outputEl.innerHTML = '';
+                if (!res.success) {
+                    outputEl.innerHTML = `<div class="text-red-400 font-bold text-center p-4">⚠️ ${res.message}</div>`;
+                    return;
+                }
+                res.steps.forEach((s, idx) => {
+                    outputEl.innerHTML += `<div class="result-step"><div class="text-sm font-semibold text-emerald-400 mb-2">Langkah ${idx + 1}:</div><p class="text-gray-300 text-base mb-3">${s.explanation}</p><div class="math-container">\\(${s.matrixLatex}\\)</div></div>`;
+                });
+                outputEl.innerHTML += `<div class="mt-4 pt-4 border-t-2 border-emerald-500"><h3 class="font-bold text-emerald-400 text-lg">Hasil Akhir: Matriks Invers</h3><div class="math-container">\\(${formatMatrixLatex(res.result)}\\)</div></div>`;
+                if (window.MathJax) MathJax.typesetPromise([outputEl]).catch(err => console.log('MathJax Error: ', err));
+            }, 50);
+        };
+        document.getElementById('computeBtn').addEventListener('click', computeInverse);
+        document.getElementById('randomizeBtn').addEventListener('click', () => createGrid(matrixAContainer, 2));
+        createGrid(matrixAContainer, 2);
+    </script>
+</body>
+</html>

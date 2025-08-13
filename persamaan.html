@@ -2,8 +2,9 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <script src="proteksi.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AMU - Sistem Persamaan Linear</title>
+  <title>AMU - Persamaan Matriks AX = C</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,284 +28,230 @@
     .form-input:focus { outline: none; border-color: #22d3ee; box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2); }
     .matrix-cell { font-family: 'Roboto Mono', monospace; text-align: center; min-width: 36px; height: 52px; padding: 0.5rem 0.2rem; font-size: 1rem; transition: all 0.2s ease-in-out; }
     .result-step { background-color: #1f2937; border: 1px solid #374151; padding: 1.25rem; border-radius: 0.75rem; margin-bottom: 1rem; }
-    .btn { padding: 0.6rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; }
+    .btn { padding: 0.6rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
     .btn-green { background-color: #22c55e; color: white; } .btn-green:hover { background-color: #16a34a; }
     .btn-indigo { background-color: #6366f1; color: white; } .btn-indigo:hover { background-color: #4f46e5; }
     .btn-yellow { background-color: #eab308; color: white; } .btn-yellow:hover { background-color: #ca8a04; }
     .btn-red { background-color: #ef4444; color: white; } .btn-red:hover { background-color: #dc2626; }
+    .cta-button { background-color: #0e7490; color: white; font-weight: 600; padding: 0.6rem 1.25rem; border-radius: 0.5rem; text-decoration: none; transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out; cursor: pointer; }
+    .cta-button:hover { background-color: #0891b2; transform: translateY(-2px); }
     .tippy-box[data-theme~='matrix'] { background-color: #0d1117; color: #22d3ee; font-weight: 600; border: 1px solid #22d3ee; }
     .matrix-grid.is-dense .matrix-cell { height: 42px; font-size: 0.8rem; }
     .math-container { overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
+    .section-header { display: flex; align-items: center; gap: 0.75rem; font-size: 1.25rem; font-weight: 700; color: #22d3ee; margin-bottom: 1rem; }
   </style>
 </head>
 <body class="text-white min-h-screen flex flex-col">
 
-  <div id="app-wrapper">
-    <header class="sticky top-0 bg-gray-900/50 backdrop-blur-lg border-b border-gray-800 z-10">
-      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-20">
-          <div class="flex-shrink-0"><a href="index.html" class="text-2xl font-bold text-white">AMU<span class="text-cyan-400">.my.id</span></a></div>
-          <div class="hidden md:block">
-            <div class="ml-10 flex items-baseline space-x-8">
-              <a href="inverse.html" class="nav-link">Inverse</a>
-              <a href="penjumlahan.html" class="nav-link">Penjumlahan</a>
-              <a href="pengurangan.html" class="nav-link">Pengurangan</a>
-              <a href="perkalian.html" class="nav-link">Perkalian</a>
-              <a href="determinan.html" class="nav-link">Determinan</a>
-              <a href="persamaan.html" class="nav-link is-active">Persamaan</a>
+  <div id="header-placeholder"></div>
+
+  <main class="flex-grow p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+      <h2 class="text-3xl font-bold text-white mb-8 text-center">Menentukan Matriks X dari Persamaan AX = C</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="flex flex-col gap-6">
+          <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+            <h2 class="section-header">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 16v-2m0-8v4m-4-2h8m-8 6h8m-8-12h8m-4 16a8 8 0 100-16 8 8 0 000 16z" /></svg>
+              Kontrol & Opsi
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div data-tippy-content="Tentukan ukuran matriks A (harus persegi). Ukuran C akan menyesuaikan."><label for="matrixSize" class="block text-sm font-medium text-gray-300 mb-1">Ukuran Matriks A (n x n)</label><input id="matrixSize" type="number" min="2" max="10" value="2" class="form-input"></div>
+              <div data-tippy-content="Tentukan jumlah kolom untuk matriks C dan matriks X."><label for="colsC" class="block text-sm font-medium text-gray-300 mb-1">Jumlah Kolom C / X</label><input id="colsC" type="number" min="1" max="10" value="2" class="form-input"></div>
             </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div id="inputSectionA" class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                  <h2 class="section-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                    Input Matriks A
+                  </h2>
+                  <div id="matrixAContainer" class="matrix-grid grid gap-3 justify-center"></div>
+              </div>
+              <div id="inputSectionC" class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                  <h2 class="section-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                    Input Matriks C
+                  </h2>
+                  <div id="matrixCContainer" class="matrix-grid grid gap-3 justify-center"></div>
+              </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <button id="randomizeBtn" class="btn btn-indigo" data-tippy-content="Isi matriks A dan C dengan angka acak.">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.452l-1.391 1.392a.5.5 0 01-.707-.707l1.392-1.391a5.5 5.5 0 018.906-2.148l.143.143L15.312 11.424zM4.688 8.576a5.5 5.5 0 019.201-2.452l1.391-1.392a.5.5 0 01.707.707l-1.392 1.391a5.5 5.5 0 01-8.906 2.148L4.688 8.576z" clip-rule="evenodd" /></svg>
+                Isi Acak
+            </button>
+            <button id="computeBtn" class="btn btn-green" data-tippy-content="Cari matriks X dari persamaan AX = C.">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                Cari Matriks X
+            </button>
           </div>
         </div>
-      </nav>
-    </header>
-    <main class="flex-grow p-4 md:p-8">
-      <div class="max-w-7xl mx-auto">
-        <h2 class="text-3xl font-bold text-white mb-8 text-center">Kalkulator Sistem Persamaan Linear (Ax = b)</h2>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div class="flex flex-col gap-6">
-            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-              <h2 class="text-xl font-bold mb-4 text-cyan-400">Kontrol & Opsi</h2>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div data-tippy-content="Tentukan ukuran sistem (n x n)."><label for="matrixSize" class="block text-sm font-medium text-gray-300 mb-1">Ukuran Sistem (n)</label><input id="matrixSize" type="number" min="1" max="10" value="3" class="form-input"></div>
-                <div data-tippy-content="Pilih format angka untuk hasil perhitungan." class="sm:col-span-2"><label for="fractionMode" class="block text-sm font-medium text-gray-300 mb-1">Mode Angka</label><select id="fractionMode" class="form-input"><option value="decimal">Desimal</option><option value="fraction">Pecahan</option></select></div>
-              </div>
-            </div>
-            <div class="flex flex-col sm:flex-row items-start gap-6">
-                <div id="inputSectionA" class="bg-gray-800 p-6 rounded-xl border border-gray-700 flex-grow">
-                    <h2 class="text-xl font-bold mb-4 text-cyan-400">Input Matriks A</h2>
-                    <div id="matrixAContainer" class="matrix-grid grid gap-3 justify-center"></div>
-                </div>
-                <div id="inputSectionB" class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-                    <h2 class="text-xl font-bold mb-4 text-cyan-400">Input Vektor b</h2>
-                    <div id="vectorBContainer" class="grid gap-3 justify-center"></div>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <button id="randomizeBtn" class="btn btn-indigo" data-tippy-content="Isi matriks A dan vektor b dengan angka acak.">Isi Acak</button>
-              <button id="computeBtn" class="btn btn-green" data-tippy-content="Selesaikan sistem persamaan linear.">Selesaikan Persamaan</button>
-            </div>
-          </div>
-          <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 min-h-[400px]">
-            <h2 class="text-xl font-bold mb-4 text-cyan-400">Hasil Perhitungan</h2>
-            <div id="outputContainer" class="bg-gray-900/50 rounded-lg p-4"><div id="output" class="text-gray-400">Masukkan matriks dan vektor, lalu tekan "Selesaikan Persamaan".</div></div>
-            <div class="mt-4 flex gap-4">
-              <button id="exportBtn" class="btn btn-yellow" data-tippy-content="Simpan soal dan hasil perhitungan sebagai file PDF.">Export PDF</button>
-              <button id="resetBtn" class="btn btn-red" data-tippy-content="Kosongkan semua input menjadi 0 dan bersihkan hasil.">Reset</button>
-            </div>
+        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 min-h-[400px]">
+          <h2 class="section-header">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C3.732 4.943 9.522 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-9.064 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>
+            Hasil Perhitungan
+          </h2>
+          <div id="outputContainer" class="bg-gray-900/50 rounded-lg p-4"><div id="output" class="text-gray-400">Masukkan matriks, lalu tekan "Cari Matriks X".</div></div>
+          <div class="mt-4 flex gap-4">
+              <button id="exportBtn" class="btn btn-yellow" data-tippy-content="Simpan soal dan hasil perhitungan sebagai file PDF.">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
+                  Export PDF
+              </button>
+              <button id="resetBtn" class="btn btn-red" data-tippy-content="Kosongkan semua sel matriks menjadi 0 dan bersihkan hasil.">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
+                  Reset
+              </button>
           </div>
         </div>
       </div>
-    </main>
-  </div>
+    </div>
+  </main>
   
-   <footer class="bg-gray-900 border-t border-gray-800 mt-20">
-    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center"><p class="text-gray-400">&copy; 2025 AMU (www.amu.my.id). Dibuat untuk Edukasi dan Kemudahan.</p></div>
-  </footer>
-
+  <div id="footer-placeholder"></div>
+  <script src="main.js"></script>
   <script>
     const matrixAContainer = document.getElementById('matrixAContainer');
-    const vectorBContainer = document.getElementById('vectorBContainer');
+    const matrixCContainer = document.getElementById('matrixCContainer');
     const outputEl = document.getElementById('output');
     const sizeInput = document.getElementById('matrixSize');
+    const colsCInput = document.getElementById('colsC');
     
     const clampSize = (n) => Math.max(1, Math.min(10, n));
+    const formatNumberLatex = (x) => math.format(x, { precision: 4 });
+    const formatMatrixLatex = (M, name = '') => `${name ? name + ' = ' : ''}\\begin{bmatrix}${M.map(r => r.map(formatNumberLatex).join(' & ')).join(' \\\\ ')}\\end{bmatrix}`;
 
-    const formatNumberLatex = (x) => {
-        if (document.getElementById('fractionMode').value === 'fraction') {
-            try {
-                const f = math.fraction(x);
-                if (Math.abs(f.d) === 1) return `${f.s * f.n}`;
-                return `${f.s < 0 ? '-' : ''}\\frac{${Math.abs(f.n)}}{${f.d}}`;
-            } catch { return math.format(x, { precision: 4 }); }
-        }
-        return math.format(x, { precision: 4 });
-    };
-
-    const formatMatrixLatex = (M, name = '') => {
-        const prefix = name ? name + ' = ' : '';
-        return `${prefix}\\begin{bmatrix}${M.map(r => r.map(formatNumberLatex).join(' & ')).join(' \\\\ ')}\\end{bmatrix}`;
-    };
-    
-    const createGrid = (container, n) => {
-        container.innerHTML = '';
-        container.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
-        if (n > 5) { container.classList.add('is-dense'); } 
-        else { container.classList.remove('is-dense'); }
-        for (let i = 0; i < n * n; i++) {
-            const inp = document.createElement('input');
-            inp.type = 'number';
-            inp.step = 'any';
-            inp.className = 'form-input matrix-cell';
-            inp.value = Math.floor(Math.random() * 10) - 4;
-            container.appendChild(inp);
-        }
+    const createGrid = (container, rows, cols) => {
+      container.innerHTML = '';
+      container.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+      if (cols > 5) { container.classList.add('is-dense'); } 
+      else { container.classList.remove('is-dense'); }
+      for (let i = 0; i < rows * cols; i++) {
+        const inp = document.createElement('input');
+        inp.type = 'number';
+        inp.step = 'any';
+        inp.className = 'form-input matrix-cell';
+        inp.value = Math.floor(Math.random() * 9) + 1;
+        container.appendChild(inp);
+      }
     };
 
-    const createVectorGrid = (container, n) => {
-        container.innerHTML = '';
-        container.style.gridTemplateColumns = '1fr';
-        for (let i = 0; i < n; i++) {
-            const inp = document.createElement('input');
-            inp.type = 'number';
-            inp.step = 'any';
-            inp.className = 'form-input matrix-cell';
-            inp.value = Math.floor(Math.random() * 10) - 4;
-            container.appendChild(inp);
-        }
-    };
-    
-    const getMatrixFrom = (container, n) => Array.from(container.querySelectorAll('input')).reduce((acc, inp, i) => {
-        const row = Math.floor(i / n);
+    const getMatrixFrom = (container, rows, cols) => Array.from(container.querySelectorAll('input')).reduce((acc, inp, i) => {
+        const row = Math.floor(i / cols);
         if (!acc[row]) acc[row] = [];
         acc[row].push(isNaN(parseFloat(inp.value)) ? 0 : parseFloat(inp.value));
         return acc;
     }, []);
 
-    const getVectorFrom = (container) => [].slice.call(container.querySelectorAll('input')).map(inp => isNaN(parseFloat(inp.value)) ? 0 : parseFloat(inp.value));
-
-    const solveLinearSystemWithExplanation = (A, b) => {
+    const solveAXEqualsC = (A, C) => {
         let steps = [];
-        const n = A.length;
-        const x_vars = Array.from({length: n}, (_, i) => [`x_{${i+1}}`]);
-        const b_vec = b.map(v => [v]);
-        
         steps.push({
-            explanation: `Menyelesaikan sistem persamaan dalam bentuk Ax = b.`,
-            matrixLatex: `${formatMatrixLatex(A)} ${formatMatrixLatex(x_vars)} = ${formatMatrixLatex(b_vec)}`
+            explanation: `Diberikan persamaan matriks AX = C, di mana:`,
+            matrixLatex: `A = ${formatMatrixLatex(A)} \\quad , \\quad C = ${formatMatrixLatex(C)}`
         });
-
         steps.push({
-            explanation: `Untuk menemukan vektor x, kita gunakan rumus \\(x = A^{-1}b\\). Langkah pertama adalah mencari invers dari matriks A.`,
+            explanation: `Untuk mencari matriks X, kita gunakan rumus \\(X = A^{-1}C\\). Langkah pertama adalah mencari invers dari matriks A.`,
             matrixLatex: ``
         });
-        
-        let inverseA;
+        let invA;
         try {
-            inverseA = math.inv(A);
+            invA = math.inv(A);
         } catch (e) {
-            return { success: false, message: 'Matriks A adalah singular (determinan 0) dan tidak memiliki invers. Sistem ini tidak dapat diselesaikan dengan metode ini.' };
+            return { success: false, message: 'Matriks A adalah singular (determinan 0) dan tidak memiliki invers. Persamaan ini tidak dapat diselesaikan.' };
         }
-        
         steps.push({
             explanation: `Hasil invers dari matriks A (A⁻¹) adalah:`,
-            matrixLatex: formatMatrixLatex(inverseA)
+            matrixLatex: `A^{-1} = ${formatMatrixLatex(invA)}`
         });
-
-        const result = math.multiply(inverseA, b);
-        const result_vec = result.map(v => [v]);
-
+        const resultX = math.multiply(invA, C);
         steps.push({
-            explanation: `Selanjutnya, kalikan A⁻¹ dengan vektor b untuk mendapatkan hasil akhir x.`,
-            matrixLatex: `${formatMatrixLatex(x_vars)} = ${formatMatrixLatex(inverseA)} \\times ${formatMatrixLatex(b_vec)} = ${formatMatrixLatex(result_vec)}`
+            explanation: `Selanjutnya, kalikan A⁻¹ dengan matriks C untuk mendapatkan matriks X.`,
+            matrixLatex: `X = ${formatMatrixLatex(invA)} \\times ${formatMatrixLatex(C)}`
         });
-
-        return { success: true, result, steps };
+        steps.push({
+            explanation: `Maka, hasil akhir dari matriks X adalah:`,
+            matrixLatex: `X = ${formatMatrixLatex(resultX)}`
+        });
+        return { success: true, result: resultX, steps };
     };
 
-    const computeSystem = () => {
+    const compute = () => {
         outputEl.innerHTML = `<div class="text-center text-gray-400">Menghitung...</div>`;
         setTimeout(() => {
-            const n = clampSize(parseInt(sizeInput.value) || 3);
-            const A = getMatrixFrom(matrixAContainer, n);
-            const b = getVectorFrom(vectorBContainer);
-            const res = solveLinearSystemWithExplanation(A, b);
-            
+            const n = clampSize(parseInt(sizeInput.value) || 2);
+            const colsC = clampSize(parseInt(colsCInput.value) || 2);
+            const A = getMatrixFrom(matrixAContainer, n, n);
+            const C = getMatrixFrom(matrixCContainer, n, colsC);
+            const res = solveAXEqualsC(A, C);
             outputEl.innerHTML = '';
-            
             if (!res.success) {
                 outputEl.innerHTML = `<div class="text-red-400 font-bold text-center p-4">⚠️ ${res.message}</div>`;
                 return;
             }
-
             res.steps.forEach((s, idx) => {
-                if(s.matrixLatex) { // Hanya render jika ada matriks
+                if(s.matrixLatex) {
                     outputEl.innerHTML += `<div class="result-step"><div class="text-sm font-semibold text-cyan-400 mb-2">Langkah ${idx + 1}:</div><p class="text-gray-300 text-base mb-3">${s.explanation}</p><div class="math-container">\\(${s.matrixLatex}\\)</div></div>`;
                 } else {
                     outputEl.innerHTML += `<div class="result-step"><div class="text-sm font-semibold text-cyan-400 mb-2">Langkah ${idx + 1}:</div><p class="text-gray-300 text-base mb-3">${s.explanation}</p></div>`;
                 }
             });
-
-            let resultText = '';
-            res.result.forEach((val, i) => {
-                resultText += `\\(x_{${i+1}} = ${formatNumberLatex(val)}\\) <br>`;
-            });
-
-            outputEl.innerHTML += `<div class="mt-4 pt-4 border-t-2 border-green-500"><h3 class="font-bold text-green-400 text-lg">Hasil Akhir: Solusi (x)</h3><div class="text-xl mt-2 text-center">${resultText}</div></div>`;
-            
+            outputEl.innerHTML += `<div class="mt-4 pt-4 border-t-2 border-green-500"><h3 class="font-bold text-green-400 text-lg">Hasil Akhir: Matriks X</h3><div class="math-container">\\(${formatMatrixLatex(res.result)}\\)</div></div>`;
             if (window.MathJax) MathJax.typesetPromise([outputEl]).catch(err => console.log('MathJax Error: ', err));
         }, 50);
     };
 
     const resetInputs = () => {
-        matrixAContainer.querySelectorAll('input').forEach(input => input.value = '0');
-        vectorBContainer.querySelectorAll('input').forEach(input => input.value = '0');
-        outputEl.innerHTML = `<div class="text-gray-400">Masukkan matriks dan vektor, lalu tekan "Selesaikan Persamaan".</div>`;
+        updateAllGrids();
+        outputEl.innerHTML = `<div class="text-gray-400">Masukkan matriks, lalu tekan "Cari Matriks X".</div>`;
     };
 
     const updateAllGrids = () => {
-        const n = clampSize(parseInt(sizeInput.value) || 3);
-        createGrid(matrixAContainer, n);
-        createVectorGrid(vectorBContainer, n);
-    };
-    
-    const formatNumberAsHTML = (x, precision = 4) => {
-      if (document.getElementById('fractionMode').value === 'fraction') {
-        try {
-          const f = math.fraction(x);
-          if (Math.abs(f.d) === 1) return `${f.s * f.n}`;
-          return `<sup>${f.s * f.n}</sup>&frasl;<sub>${f.d}</sub>`;
-        } catch { return math.format(x, { notation: 'fixed', precision }); }
-      }
-      return math.format(x, { notation: 'fixed', precision });
+        const n = clampSize(parseInt(sizeInput.value) || 2);
+        const colsC = clampSize(parseInt(colsCInput.value) || 2);
+        createGrid(matrixAContainer, n, n);
+        createGrid(matrixCContainer, n, colsC);
     };
 
+    const formatNumberAsHTML = (x, precision = 4) => { return math.format(x, { notation: 'fixed', precision }); };
     const formatMatrixAsHTMLTable = (M) => {
       let table = '<table style="margin: auto; border-spacing: 0.5rem; border-collapse: separate; font-family: \'Roboto Mono\', monospace;"><tbody>';
       for (const row of M) {
         table += '<tr>';
-        for (const cell of row) { table += `<td style="border: 1px solid #4b5563; border-radius: 0.375rem; padding: 0.5rem; text-align: center; min-width: 50px;">${formatNumberAsHTML(cell)}</td>`; }
+        for (const cell of row) { table += `<td style="border: 1px solid #4b5663; border-radius: 0.375rem; padding: 0.5rem; text-align: center; min-width: 50px;">${formatNumberAsHTML(cell)}</td>`; }
         table += '</tr>';
       }
       table += '</tbody></table>';
       return table;
     };
     
-    document.getElementById('computeBtn').addEventListener('click', computeSystem);
+    document.getElementById('computeBtn').addEventListener('click', compute);
     sizeInput.addEventListener('input', updateAllGrids);
+    colsCInput.addEventListener('input', updateAllGrids);
     document.getElementById('randomizeBtn').addEventListener('click', updateAllGrids);
     document.getElementById('resetBtn').addEventListener('click', resetInputs);
     
     document.getElementById('exportBtn').addEventListener('click', () => {
         const outputElForPdf = document.getElementById('output');
         if (outputElForPdf.innerText.includes('Masukkan matriks') || outputElForPdf.innerText.trim() === '') { alert('Tidak ada hasil untuk di-export!'); return; }
-        const n = clampSize(parseInt(sizeInput.value) || 3);
-        const A = getMatrixFrom(matrixAContainer, n);
-        const b = getVectorFrom(vectorBContainer);
-        const b_vec = b.map(v => [v]);
-        const res = solveLinearSystemWithExplanation(A,b);
+        const n = clampSize(parseInt(sizeInput.value) || 2);
+        const colsC = clampSize(parseInt(colsCInput.value) || 2);
+        const A = getMatrixFrom(matrixAContainer, n, n);
+        const C = getMatrixFrom(matrixCContainer, n, colsC);
+        const res = solveAXEqualsC(A,C);
 
-        if (!res.success) {
-            alert('Tidak bisa export PDF: ' + res.message);
-            return;
-        }
+        if (!res.success) { alert('Tidak bisa export PDF: ' + res.message); return; }
 
         let reportHTML = `<style>body { font-family: 'Poppins', sans-serif; color: #e5e7eb; font-size: 14px; } h1, h2, h3 { color: #38bdf8; margin: 0; padding: 0;} p { margin: 0; padding: 0; } .section { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; }</style>`;
-        reportHTML += `<div style="padding: 1rem;"><div style="text-align:center; margin-bottom: 1.5rem;"><h1>AMU.my.id</h1><p style="font-size: 1.1em; color: #9ca3af; margin-top: 0.25rem;">Laporan Sistem Persamaan Linear</p></div>`;
-        reportHTML += `<div class="section" style="text-align: center;"><h2 style="font-size: 1.25em; margin-bottom: 1rem;">Sistem Persamaan (Ax = b)</h2><div style="display: flex; justify-content: center; align-items: center; gap: 1rem;"><div>${formatMatrixAsHTMLTable(A)}</div><div style="font-size: 1.5em;">x</div><div>${formatMatrixAsHTMLTable(res.result.map(v=>[v]))}</div><div style="font-size: 1.5em;">=</div><div>${formatMatrixAsHTMLTable(b_vec)}</div></div></div>`;
-        reportHTML += `<hr style="margin: 1.5rem 0; border-color: #374151; border-style: dashed;"><div><h2 style="font-size: 1.25em; margin-bottom: 1rem;">Hasil Perhitungan</h2><div class="section" style="border-color: #22c55e;"><h3 style="font-weight: 600; color: #4ade80; margin-bottom: 0.5rem;">Solusi (x)</h3>`;
+        reportHTML += `<div style="padding: 1rem;"><div style="text-align:center; margin-bottom: 1.5rem;"><h1>AMU.my.id</h1><p style="font-size: 1.1em; color: #9ca3af; margin-top: 0.25rem;">Laporan Persamaan Matriks AX = C</p></div>`;
+        reportHTML += `<div class="section" style="text-align: center;"><h2 style="font-size: 1.25em; margin-bottom: 1rem;">Input Persamaan</h2><div style="display: flex; justify-content: center; align-items: center; gap: 1rem;"><div><h3>Matriks A</h3>${formatMatrixAsHTMLTable(A)}</div><div style="font-size: 1.5em;">X</div><div style="font-size: 1.5em;">=</div><div><h3>Matriks C</h3>${formatMatrixAsHTMLTable(C)}</div></div></div>`;
+        reportHTML += `<hr style="margin: 1.5rem 0; border-color: #374151; border-style: dashed;"><div><h2 style="font-size: 1.25em; margin-bottom: 1rem;">Hasil Perhitungan</h2><div class="section" style="border-color: #22c55e;"><h3 style="font-weight: 600; color: #4ade80; margin-bottom: 0.5rem;">Solusi Matriks X</h3>${formatMatrixAsHTMLTable(res.result)}</div></div></div>`;
         
-        res.result.forEach((val, i) => {
-            reportHTML += `<p style="font-size: 1.2em; font-family: 'Roboto Mono', monospace; text-align: center;">x<sub>${i+1}</sub> = ${formatNumberAsHTML(val)}</p>`;
-        });
-
-        reportHTML += `</div></div></div>`;
-        
-        const opt = { margin: 0.5, filename: 'amu_persamaan.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+        const opt = { margin: 0.5, filename: 'amu_persamaan_axc.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
         html2pdf().from(reportHTML).set(opt).save();
     });
 
     updateAllGrids();
-    tippy('[data-tippy-content]', { theme: 'matrix', animation: 'scale-subtle' });
+    tippy('[data-tippy-content]');
   </script>
 </body>
 </html>

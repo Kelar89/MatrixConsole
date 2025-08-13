@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMU - Formulir Pendaftaran</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #111827; }
+        .form-input { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.8rem 1rem; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; color: white; }
+        .form-input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+        .cta-button { background-color: #10b981; color: white; font-weight: 600; padding: 0.8rem 1.5rem; border-radius: 0.5rem; transition: background-color 0.2s; width: 100%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;}
+        .cta-button:hover { background-color: #059669; }
+    </style>
+</head>
+<body class="text-gray-300 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl mx-auto">
+        <div class="mb-4">
+            <a href="landing-page.html" class="inline-flex items-center text-emerald-400 hover:text-emerald-300 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+              Kembali ke Halaman Utama
+            </a>
+        </div>
+
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white">Formulir Pendaftaran</h1>
+            <p class="text-gray-400 mt-2">Selesaikan pendaftaran Anda melalui WhatsApp.</p>
+        </div>
+
+        <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-lg">
+            <form id="wa-form">
+                <h3 class="text-lg font-semibold text-emerald-400 border-b border-gray-700 pb-2 mb-4">Detail Pribadi</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="nama" class="block text-sm font-medium mb-2">Nama Lengkap</label>
+                        <input type="text" id="nama" class="form-input" required placeholder="Nama Anda">
+                    </div>
+                    <div>
+                        <label for="no_hp" class="block text-sm font-medium mb-2">No. HP (WhatsApp)</label>
+                        <input type="tel" id="no_hp" class="form-input" required placeholder="08xxxx">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label for="alamat" class="block text-sm font-medium mb-2">Kota / Provinsi</label>
+                    <input type="text" id="alamat" class="form-input" required placeholder="Contoh: Jakarta Pusat, DKI Jakarta">
+                </div>
+
+                <h3 class="text-lg font-semibold text-emerald-400 border-b border-gray-700 pb-2 mb-4 mt-8">Detail Pendaftaran</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="status" class="block text-sm font-medium mb-2">Saya seorang</label>
+                        <select id="status" class="form-input" required>
+                            <option value="">-- Pilih Status --</option>
+                            <option>Guru / Tutor</option>
+                            <option>Orang Tua</option>
+                            <option>Siswa</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="paket" class="block text-sm font-medium mb-2">Paket yang Dipilih</label>
+                        <select id="paket" class="form-input" required>
+                             <option value="">-- Pilih Paket --</option>
+                            <option value="Profesional - Rp 50.000/bulan">Profesional - Rp 50.000/bulan</option>
+                            <option value="Personal - Rp 25.000/bulan">Personal - Rp 25.000/bulan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <button type="submit" class="cta-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
+                        Kirim Pendaftaran via WhatsApp
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('wa-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nama = document.getElementById('nama').value;
+            const noHp = document.getElementById('no_hp').value;
+            const alamat = document.getElementById('alamat').value;
+            const status = document.getElementById('status').value;
+            const paket = document.getElementById('paket').value;
+            
+            if (status === "" || paket === "") {
+                alert("Harap lengkapi semua kolom sebelum melanjutkan.");
+                return;
+            }
+
+            const noWaTujuan = "6285894448143";
+
+            // --- FORMAT PESAN BARU "OUT OF THE BOX" ---
+            const pesan = `
+*PENDAFTARAN BARU - AMU.my.id*
+-----------------------------------
+
+Halo, saya ingin mendaftar untuk berlangganan.
+
+*_DETAIL CALON PELANGGAN_*
+*Nama:* ${nama}
+*No. HP:* ${noHp}
+*Lokasi:* ${alamat}
+
+*_DETAIL LANGGANAN_*
+*Status:* ${status}
+*Paket:* ${paket}
+-----------------------------------
+
+_Mohon untuk segera dihubungi untuk proses aktivasi._
+
+Terima kasih.
+            `;
+
+            const urlWa = `https://api.whatsapp.com/send?phone=${noWaTujuan}&text=${encodeURIComponent(pesan)}`;
+            
+            window.location.href = urlWa;
+        });
+    </script>
+</body>
+</html>
