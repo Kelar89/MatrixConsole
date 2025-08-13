@@ -1,241 +1,212 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Kesamaan Matriks Simbolik</title>
-    
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Kalkulator Penyelesaian Kesamaan Matriks</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Roboto+Mono&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #0d1117; color: white; background-image: radial-gradient(circle at 1px 1px, #374151 1px, transparent 0); background-size: 20px 20px; }
-        .panel-box { background-color: #1f2937; padding: 1.5rem; border-radius: 1rem; border: 1px solid #374151; }
-        .form-input { background-color: #0d1117; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.6rem 0.8rem; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
-        .form-input:focus { outline: none; border-color: #22d3ee; box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2); }
-        .matrix-cell { font-family: 'Roboto Mono', monospace; text-align: center; height: 52px; font-size: 1rem; }
-        .result-step { background-color: #161b22; border-left: 4px solid #22d3ee; padding: 1rem; margin-bottom: 1rem; border-radius: 0.25rem; }
-        .btn { padding: 0.6rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%;}
-        .btn-green { background-color: #22c55e; color: white; } .btn-green:hover { background-color: #16a34a; }
-        .btn-indigo { background-color: #6366f1; color: white; } .btn-indigo:hover { background-color: #4f46e5; }
-        .btn-red { background-color: #ef4444; color: white; } .btn-red:hover { background-color: #dc2626; }
-        .math-container { overflow-x: auto; padding-bottom: 0.5rem; }
+        body { font-family: 'Poppins', sans-serif; background: #0d1117; color: #fff; }
+        .panel { background: #1f2937; border: 1px solid #374151; border-radius: 0.75rem; padding: 1.5rem; }
+        .cell { background: #0d1117; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.5rem; width: 100%; text-align: center; font-family: 'Roboto Mono', monospace; }
+        .cell:focus { outline: none; border-color: #22d3ee; box-shadow: 0 0 0 3px rgba(34, 211, 238, .2); }
+        .btn { border-radius: .5rem; padding: .6rem 1rem; font-weight: 600; color: #fff; transition: background-color .2s; cursor: pointer; }
+        .btn-green { background: #22c55e; } .btn-green:hover { background: #16a34a; }
+        .btn-blue { background: #3b82f6; } .btn-blue:hover { background: #2563eb; }
+        .btn-red { background: #ef4444; } .btn-red:hover { background: #dc2626; }
+        .step { background: #161b22; border-left: 4px solid #22d3ee; border-radius: .25rem; padding: 1rem; margin-bottom: 1rem; }
+        .math-container { overflow-x: auto; padding: 0.2rem; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold text-white mb-6 text-center">Kalkulator Kesamaan Dua Matriks (A = B)</h1>
-        
-        <div class="panel-box mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center mb-6">
+<body class="p-4 md:p-8">
+    <div class="max-w-4xl mx-auto space-y-6">
+        <h1 class="text-3xl font-bold text-center">Kesamaan Dua Matriks (A = B)</h1>
+
+        <div class="panel space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                 <div>
-                    <label for="matrixSize" class="block text-sm font-medium text-gray-300 mb-1">Ukuran Matriks (n x n)</label>
-                    <input id="matrixSize" type="number" min="1" max="5" value="2" class="form-input">
+                    <label class="block mb-1 text-sm text-gray-300">Ukuran Matriks (n × n)</label>
+                    <input id="sizeInput" type="number" min="1" max="5" value="2" class="cell" />
                 </div>
                 <div class="flex gap-4">
-                    <button id="randomizeBtn" class="btn btn-indigo text-sm">Isi Acak</button>
-                    <button id="resetBtn" class="btn btn-red text-sm">Reset</button>
+                    <button id="randomBtn" class="btn btn-blue w-full">Isi Acak</button>
+                    <button id="resetBtn" class="btn btn-red w-full">Reset</button>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center border-t border-b border-gray-700 py-6">
-                <div class="w-full">
-                    <h2 class="text-xl font-bold text-center mb-4">Matriks A</h2>
-                    <div id="matrixAContainer" class="grid gap-3 justify-center"></div>
+            <div class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-center">
+                <div>
+                    <h2 class="text-xl font-semibold text-center mb-2">Matriks A</h2>
+                    <div id="matA" class="grid gap-2 justify-center"></div>
                 </div>
-                <div class="w-full">
-                    <h2 class="text-xl font-bold text-center mb-4">Matriks B</h2>
-                    <div id="matrixBContainer" class="grid gap-3 justify-center"></div>
+                <div class="text-3xl font-bold text-gray-400">=</div>
+                <div>
+                    <h2 class="text-xl font-semibold text-center mb-2">Matriks B</h2>
+                    <div id="matB" class="grid gap-2 justify-center"></div>
                 </div>
             </div>
-            <div class="mt-6">
-                 <button id="computeBtn" class="btn-green w-full text-lg">Selesaikan & Tentukan Nilai Variabel</button>
-            </div>
+            <button id="solveBtn" class="btn btn-green w-full text-lg">Selesaikan</button>
         </div>
 
-        <div class="panel-box">
-            <h2 class="text-xl font-bold mb-4">Penyelesaian:</h2>
-            <div id="outputContainer" class="space-y-4"><p class="text-gray-400">Masukkan ekspresi pada matriks, lalu tekan selesaikan.</p></div>
+        <div class="panel">
+            <h2 class="text-xl font-bold mb-3">Langkah Penyelesaian</h2>
+            <div id="out" class="space-y-4 text-gray-200">
+                Masukkan ekspresi pada matriks lalu klik <b>Selesaikan</b>.
+            </div>
         </div>
     </div>
 
-    <script>
-        // --- Elemen DOM & Fungsi Bantuan ---
-        const sizeInput = document.getElementById('matrixSize');
-        const computeBtn = document.getElementById('computeBtn');
-        const randomizeBtn = document.getElementById('randomizeBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const outputContainer = document.getElementById('outputContainer');
-        const matrixAContainer = document.getElementById('matrixAContainer');
-        const matrixBContainer = document.getElementById('matrixBContainer');
+<script>
+    const sizeInput = document.getElementById('sizeInput');
+    const matA = document.getElementById('matA');
+    const matB = document.getElementById('matB');
+    const out = document.getElementById('out');
+    const solveBtn = document.getElementById('solveBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const randomBtn = document.getElementById('randomBtn');
 
-        const createGrid = (container, n) => {
-            container.innerHTML = '';
-            container.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
-            for (let i = 0; i < n * n; i++) {
-                const inp = document.createElement('input');
-                inp.type = 'text';
-                inp.className = 'form-input matrix-cell';
-                container.appendChild(inp);
-            }
-        };
+    function createGrid(container, n) {
+        container.innerHTML = '';
+        container.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+        for (let i = 0; i < n * n; i++) {
+            const inp = document.createElement('input');
+            inp.className = 'cell';
+            inp.placeholder = '0';
+            container.appendChild(inp);
+        }
+    }
 
-        const getMatrixFrom = (container, n) => {
-            const inputs = container.querySelectorAll('input');
-            let matrix = [];
-            for (let i = 0; i < n; i++) {
-                let row = [];
-                for (let j = 0; j < n; j++) {
-                    const val = inputs[i * n + j].value.trim();
-                    row.push(val === '' ? '0' : val);
-                }
-                matrix.push(row);
-            }
-            return matrix;
-        };
-        
-        const formatLatex = (str) => {
-            try { return math.parse(str).toTex(); } catch { return str; }
-        };
+    function getMatrix(container, n) {
+        const vals = [...container.querySelectorAll('input')].map(i => i.value.trim() || '0');
+        const M = [];
+        for (let i = 0; i < n; i++) M.push(vals.slice(i * n, (i + 1) * n));
+        return M;
+    }
 
-        // --- Logika Utama ---
-        const solveSystem = () => {
-            const n = parseInt(sizeInput.value);
-            const matrixA = getMatrixFrom(matrixAContainer, n);
-            const matrixB = getMatrixFrom(matrixBContainer, n);
+    function toTex(expr) {
+        try {
+            return math.parse(expr).toTex();
+        } catch {
+            return expr.replace(/_/g, '\\_');
+        }
+    }
 
-            outputContainer.innerHTML = '<p class="text-gray-400">Menganalisis dan menghitung...</p>';
-            let stepsHTML = '';
-            let finalSolutions = {};
+    function toTexMatrix(M) {
+        const body = M.map(row => row.map(toTex).join('&')).join('\\\\');
+        return `\\begin{bmatrix}${body}\\end{bmatrix}`;
+    }
 
-            const matrixALatex = `\\begin{bmatrix}${matrixA.map(r => r.map(formatLatex).join('&')).join('\\\\')}\\end{bmatrix}`;
-            const matrixBLatex = `\\begin{bmatrix}${matrixB.map(r => r.map(formatLatex).join('&')).join('\\\\')}\\end{bmatrix}`;
-            stepsHTML += `<div class="result-step"><strong>Langkah 1: Persamaan Awal</strong><p>Diberikan kesamaan matriks A = B.</p><div class="math-container">\\( A = ${matrixALatex}, \\; B = ${matrixBLatex} \\)</div></div>`;
+    function typeset() {
+        if (window.MathJax) {
+            MathJax.typesetPromise([out]);
+        }
+    }
 
-            const allText = matrixA.flat().join(' ') + ' ' + matrixB.flat().join(' ');
-            const variables = [...new Set(allText.match(/[a-zA-Z]/g) || [])];
-            
-            if (variables.length === 0) {
-                outputContainer.innerHTML = '<p class="text-yellow-400">Tidak ada variabel (seperti x, y, z) yang ditemukan pada matriks.</p>';
-                return;
-            }
+    function solve() {
+        out.innerHTML = ``;
+        const n = parseInt(sizeInput.value);
+        const MA = getMatrix(matA, n);
+        const MB = getMatrix(matB, n);
+        let html = '';
 
-            stepsHTML += `<div class="result-step"><strong>Langkah 2: Mencari Nilai Variabel</strong><p>Kita akan menyelesaikan setiap variabel dengan menyamakan elemen yang bersesuaian.</p></div>`;
-            
-            let equationCount = 0;
-            for (let i = 0; i < n; i++) {
-                for (let j = 0; j < n; j++) {
-                    const exprA = matrixA[i][j];
-                    const exprB = matrixB[i][j];
-                    
-                    if (exprA.trim() !== exprB.trim()) {
-                        const equationStr = `(${exprA}) - (${exprB})`;
-                        const eqVars = variables.filter(v => new RegExp(v).test(equationStr));
-                        
-                        if (eqVars.length === 1) { 
-                            const variable = eqVars[0];
-                            equationCount++;
-                            stepsHTML += `<div class="result-step"><strong>Penyelesaian untuk variabel '${variable}' (dari elemen baris ${i+1}, kolom ${j+1}):</strong>`;
-                            try {
-                                stepsHTML += `<div class="math-container">\\( ${formatLatex(exprA)} = ${formatLatex(exprB)} \\)</div>`;
-                                
-                                // --- BAGIAN SOLVER YANG DIROMBAK TOTAL ---
-                                const simplifiedNode = math.simplify(equationStr);
-                                
-                                // Coba rasionalkan. Ini akan mengubahnya menjadi bentuk polinomial
-                                const rationalizedNode = math.rationalize(simplifiedNode);
-                                
-                                stepsHTML += `<p class="mt-2">Sederhanakan persamaan menjadi bentuk ax + b = 0:</p><div class="math-container">\\( ${rationalizedNode.toTex()} = 0 \\)</div>`;
-                                
-                                // Periksa apakah hasilnya adalah polinomial linear yang bisa dipecahkan
-                                if (rationalizedNode && rationalizedNode.coefficients && rationalizedNode.coefficients.length === 2 && rationalizedNode.coefficients[1] != 0) {
-                                    const coeffs = rationalizedNode.coefficients;
-                                    const b_coeff = coeffs[0]; // konstanta b
-                                    const a_coeff = coeffs[1]; // koefisien a dari ax
-                                    
-                                    const solution = math.fraction(-b_coeff / a_coeff);
-                                    finalSolutions[variable] = solution;
+        html += `<div class="step"><b>1. Persamaan Awal (A = B)</b>
+                    <div class="mt-2 math-container">\\( ${toTexMatrix(MA)} = ${toTexMatrix(MB)} \\)</div>
+                 </div>`;
 
-                                    stepsHTML += `<p class="mt-2">Hasil akhir untuk variabel ini:</p><div class="math-container font-bold text-green-400">\\( ${variable} = ${solution.toTex()} \\)</div>`;
-                                } else {
-                                    stepsHTML += `<p class="text-yellow-400">Persamaan ini bukan linear sederhana (bukan bentuk ax+b=0) dan tidak dapat diselesaikan oleh kalkulator ini.</p>`;
-                                }
-
-                            } catch (e) {
-                                stepsHTML += `<p class="text-red-400">Gagal memproses persamaan: ${e.message}.</p>`;
-                            }
-                            stepsHTML += `</div>`;
-                        }
-                    }
+        let eqPairs = [];
+        for (let i = 0; i < n; i++) {
+            for (let j = 0; j < n; j++) {
+                if (MA[i][j].trim() !== MB[i][j].trim()) {
+                    eqPairs.push({L: MA[i][j], R: MB[i][j], loc: `(baris ${i+1}, kolom ${j+1})`});
                 }
             }
+        }
 
-            if (equationCount === 0) {
-                stepsHTML += `<div class="result-step"><p>Tidak ditemukan persamaan dengan satu variabel yang bisa diselesaikan secara langsung.</p></div>`;
-            }
+        if (eqPairs.length === 0) {
+            html += `<div class="step"><p class="text-green-400">Semua elemen sudah sama, tidak ada yang perlu diselesaikan.</p></div>`;
+            out.innerHTML = html;
+            typeset();
+            return;
+        }
 
-            if (Object.keys(finalSolutions).length > 0) {
-                const solutionSummary = Object.entries(finalSolutions)
-                    .map(([variable, sol]) => `\\(${variable} = ${sol.toTex()}\\)`)
-                    .join(', ');
-                stepsHTML += `<div class="result-step bg-green-900/50 border-green-500"><strong>Hasil Akhir Ditemukan:</strong><p class="text-xl mt-2">${solutionSummary}</p></div>`;
-            }
-            
-            outputContainer.innerHTML = stepsHTML;
-            if (window.MathJax) MathJax.typesetPromise([outputContainer]);
-        };
+        html += `<div class="step"><b>2. Penyelesaian Langkah Demi Langkah</b></div>`;
 
-        const resetAll = () => {
-            const n = parseInt(sizeInput.value);
-            createGrid(matrixAContainer, n);
-            createGrid(matrixBContainer, n);
-            outputContainer.innerHTML = '<p class="text-gray-400">Masukkan ekspresi pada matriks, lalu tekan selesaikan.</p>';
-        };
+        eqPairs.forEach(pair => {
+            const variableMatch = (pair.L + pair.R).match(/[a-zA-Z]/);
+            if (!variableMatch) return;
+            const variable = variableMatch[0];
 
-        const randomizeAll = () => {
-            const n = parseInt(sizeInput.value);
-            const vars = ['x', 'y', 'z', 'a', 'b'];
-            [matrixAContainer, matrixBContainer].forEach(container => {
-                container.querySelectorAll('input').forEach(inp => {
-                    const coinFlip = Math.random();
-                    if (coinFlip > 0.7) { 
-                        const num1 = Math.floor(Math.random() * 9) + 1;
-                        const num2 = Math.floor(Math.random() * 9) + 1;
-                        const op = Math.random() > 0.5 ? '+' : '-';
-                        const v = vars[Math.floor(Math.random() * vars.length)];
-                        inp.value = `${num1}${v} ${op} ${num2}`;
-                    } else { 
-                        inp.value = Math.floor(Math.random() * 21) - 10;
-                    }
-                });
+            let valVar1 = math.evaluate(pair.L, { [variable]: 1 });
+            let valVar0 = math.evaluate(pair.L, { [variable]: 0 });
+            let coeff = valVar1 - valVar0;
+            let constant = valVar0;
+
+            let langkah = `<div class="step">
+                <b>Mencari ${variable} dari elemen ${pair.loc}:</b>
+                <div class="math-container">\\( ${toTex(pair.L)} = ${toTex(pair.R)} \\)</div>
+                <p>Pindahkan konstanta ke kanan:</p>
+                <div class="math-container">\\( ${coeff}${variable} = (${pair.R}) - (${constant}) \\)</div>
+                <div class="math-container">\\( ${coeff}${variable} = ${math.simplify(`(${pair.R}) - (${constant})`).toString()} \\)</div>
+                <p>Bagi kedua ruas dengan ${coeff}:</p>
+                <div class="math-container">\\( ${variable} = ${math.simplify(`((${pair.R}) - (${constant}))/(${coeff})`).toString()} \\)</div>
+                <div class="math-container font-bold text-green-400">Hasil: \\( ${variable} = ${math.format(math.simplify(`((${pair.R}) - (${constant}))/(${coeff})`))} \\)</div>
+            </div>`;
+
+            html += langkah;
+        });
+
+        out.innerHTML = html;
+        typeset();
+    }
+
+    function randomize() {
+        const vars = ['x', 'y', 'z', 'a', 'b', 'c'];
+        [matA, matB].forEach(cont => {
+            cont.querySelectorAll('input').forEach(inp => {
+                if (Math.random() > 0.5) {
+                    const k = Math.floor(Math.random() * 9) + 1;
+                    const v = vars[Math.floor(Math.random() * vars.length)];
+                    const s = Math.random() > 0.5 ? '+' : '-';
+                    const c = Math.floor(Math.random() * 9) + 1;
+                    inp.value = `${k}${v} ${s} ${c}`;
+                } else {
+                    inp.value = String(Math.floor(Math.random() * 21) - 10);
+                }
             });
-        };
+        });
+    }
 
-        const setupAndReset = () => {
-            const n = parseInt(sizeInput.value);
-            createGrid(matrixAContainer, n);
-            createGrid(matrixBContainer, n);
+    function reset() {
+        const n = parseInt(sizeInput.value);
+        createGrid(matA, n);
+        createGrid(matB, n);
+        if (n === 2) {
+            const exA = ['2 + 5x', '7', '3y - 2', '4'];
+            const exB = ['12', '7', '10', '4'];
+            matA.querySelectorAll('input').forEach((el, i) => el.value = exA[i] || '');
+            matB.querySelectorAll('input').forEach((el, i) => el.value = exB[i] || '');
+        }
+        out.innerHTML = 'Masukkan ekspresi pada matriks lalu klik <b>Selesaikan</b>.';
+        typeset();
+    }
 
-            if (n === 2) { // Contoh default saat ukuran 2x2
-                const exampleA = ['8', '3z+4', '1', '-18'];
-                const exampleB = ['-2', '7y-6', '18', '3a+4'];
-                matrixAContainer.querySelectorAll('input').forEach((inp, i) => inp.value = exampleA[i] || '');
-                matrixBContainer.querySelectorAll('input').forEach((inp, i) => inp.value = exampleB[i] || '');
-            }
-            outputContainer.innerHTML = '<p class="text-gray-400">Masukkan ekspresi pada matriks, lalu tekan selesaikan.</p>';
-        };
+    function init() {
+        const n = parseInt(sizeInput.value);
+        createGrid(matA, n);
+        createGrid(matB, n);
+        reset();
+    }
 
-        // --- Event Listener ---
-        sizeInput.addEventListener('input', setupAndReset);
-        computeBtn.addEventListener('click', solveSystem);
-        resetBtn.addEventListener('click', resetAll);
-        randomizeBtn.addEventListener('click', randomizeAll);
-        
-        setupAndReset();
-    </script>
+    sizeInput.addEventListener('input', init);
+    solveBtn.addEventListener('click', solve);
+    resetBtn.addEventListener('click', reset);
+    randomBtn.addEventListener('click', randomize);
+
+    init();
+</script>
 </body>
 </html>
