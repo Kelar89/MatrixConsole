@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AMU - Kalkulator Matriks Dua Mode</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Roboto+Mono&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body { font-family: 'Poppins', sans-serif; background-color: #0d1117; background-image: radial-gradient(circle at 1px 1px, #374151 1px, transparent 0); background-size: 20px 20px; }
+    .form-input { background-color: #0d1117; border: 1px solid #374151; border-radius: 0.5rem; padding: 0.6rem 0.8rem; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
+    .form-input:focus { outline: none; border-color: #22d3ee; box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2); }
+    .matrix-cell { font-family: 'Roboto Mono', monospace; text-align: center; height: 52px; padding: 0.5rem 0.2rem; font-size: 1rem; }
+    .result-step { background-color: #1f2937; border: 1px solid #374151; padding: 1.25rem; border-radius: 0.75rem; margin-bottom: 1rem; }
+    .btn { padding: 0.6rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .btn-green { background-color: #22c55e; color: white; } .btn-green:hover { background-color: #16a34a; }
+    .btn-indigo { background-color: #6366f1; color: white; } .btn-indigo:hover { background-color: #4f46e5; }
+    .btn-yellow { background-color: #eab308; color: white; } .btn-yellow:hover { background-color: #ca8a04; }
+    .btn-red { background-color: #ef4444; color: white; } .btn-red:hover { background-color: #dc2626; }
+    .math-container { overflow-x: auto; padding-bottom: 0.5rem; }
+    .section-header { display: flex; align-items: center; gap: 0.75rem; font-size: 1.25rem; font-weight: 700; color: #22d3ee; margin-bottom: 1rem; }
+    .panel-box { background-color: #1f2937; padding: 1.5rem; border-radius: 1rem; border: 1px solid #374151; }
+  </style>
+</head>
+<body class="text-white min-h-screen flex flex-col">
+
+  <main class="flex-grow p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-bold text-white mb-8 text-center">Kalkulator Matriks Dua Mode</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <div class="flex flex-col gap-6">
+          <div class="panel-box">
+            <h2 class="section-header">Kontrol & Opsi</h2>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Pilih Tipe Soal</label>
+                <div class="flex gap-x-6">
+                    <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="calcMode" value="axb" checked class="form-radio bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600"> Sistem Persamaan (Ax = b)</label>
+                    <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="calcMode" value="aeb" class="form-radio bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600"> Kesamaan Matriks (A = B)</label>
+                </div>
+            </div>
+            <hr class="border-gray-700 my-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div><label for="matrixSize" class="block text-sm font-medium text-gray-300 mb-1">Ukuran Sistem (n)</label><input id="matrixSize" type="number" min="1" max="10" value="2" class="form-input"></div>
+              <div><label for="fractionMode" class="block text-sm font-medium text-gray-300 mb-1">Mode Angka</label><select id="fractionMode" class="form-input"><option value="fraction">Pecahan</option><option value="decimal">Desimal</option></select></div>
+            </div>
+          </div>
+          
+          <div id="inputsContainer" class="panel-box">
+            <div id="inputModeAxEqualsB" class="flex flex-col md:flex-row items-start gap-6">
+                <div class="flex-grow w-full"><h2 class="section-header">Input Matriks A</h2><div id="matrixAContainer_AxB" class="matrix-grid grid gap-3 justify-center"></div></div>
+                <div class="w-full md:w-auto"><h2 class="section-header">Input Vektor b</h2><div id="vectorBContainer_AxB" class="grid gap-3 justify-center"></div></div>
+            </div>
+            <div id="inputModeAEqualsB" class="hidden flex-col md:flex-row items-start gap-6">
+                <div class="flex-grow w-full"><h2 class="section-header">Input Matriks A</h2><div id="matrixAContainer_AEB" class="matrix-grid grid gap-3 justify-center"></div></div>
+                <div class="flex-grow w-full"><h2 class="section-header">Input Matriks B</h2><div id="matrixBContainer_AEB" class="matrix-grid grid gap-3 justify-center"></div></div>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <h2 class="section-header">Aksi & Perintah</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <button id="randomizeBtn" class="btn btn-indigo"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.452l-1.391 1.392a.5.5 0 01-.707-.707l1.392-1.391a5.5 5.5 0 018.906-2.148l.143.143L15.312 11.424zM4.688 8.576a5.5 5.5 0 019.201-2.452l1.391-1.392a.5.5 0 01.707.707l-1.392 1.391a5.5 5.5 0 01-8.906 2.148L4.688 8.576z" clip-rule="evenodd" /></svg>Isi Acak</button>
+                <button id="computeBtn" class="btn btn-green"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>Selesaikan</button>
+                <button id="resetBtn" class="btn btn-red"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>Reset</button>
+                <button id="exportBtn" class="btn btn-yellow"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Export PDF</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-box min-h-[500px]">
+          <h2 class="section-header">Hasil Perhitungan</h2>
+          <div id="outputContainer" class="bg-gray-900/50 rounded-lg p-4 h-full"><div id="output" class="text-gray-400">Pilih mode, masukkan angka, lalu tekan "Selesaikan".</div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <script>
+    // --- Elemen DOM ---
+    const sizeInput = document.getElementById('matrixSize');
+    const outputEl = document.getElementById('output');
+    const modeSelectors = document.querySelectorAll('input[name="calcMode"]');
+    const computeBtn = document.getElementById('computeBtn');
+    const randomizeBtn = document.getElementById('randomizeBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    
+    const inputModeAxB = document.getElementById('inputModeAxEqualsB');
+    const inputModeAEB = document.getElementById('inputModeAEqualsB');
+    const matrixA_AxB = document.getElementById('matrixAContainer_AxB');
+    const vectorB_AxB = document.getElementById('vectorBContainer_AxB');
+    const matrixA_AEB = document.getElementById('matrixAContainer_AEB');
+    const matrixB_AEB = document.getElementById('matrixBContainer_AEB');
+
+    // --- Fungsi Bantuan ---
+    const clampSize = (n) => Math.max(1, Math.min(10, n));
+    const formatNumberLatex = (x) => {
+        if (document.getElementById('fractionMode').value === 'fraction') {
+            try {
+                const f = math.fraction(x);
+                if (f.d === 1) return `${f.s * f.n}`;
+                return `${f.s < 0 ? '-' : ''}\\frac{${Math.abs(f.n)}}{${f.d}}`;
+            } catch { return math.format(x, { precision: 4 }); }
+        }
+        return math.format(x, { notation: 'fixed', precision: 4 });
+    };
+    const formatMatrixLatex = (M, name = '') => `${name ? name + ' = ' : ''}\\begin{bmatrix}${M.map(r => r.map(formatNumberLatex).join(' & ')).join(' \\\\ ')}\\end{bmatrix}`;
+
+    // --- Pembuatan Grid Input ---
+    const createGrid = (container, n, isRandom) => {
+        container.innerHTML = '';
+        container.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+        for (let i = 0; i < n * n; i++) {
+            const inp = document.createElement('input');
+            inp.type = 'number';
+            inp.className = 'form-input matrix-cell';
+            inp.value = isRandom ? Math.floor(Math.random() * 11) - 5 : 0;
+            container.appendChild(inp);
+        }
+    };
+    const createVectorGrid = (container, n, isRandom) => {
+        container.innerHTML = '';
+        container.style.gridTemplateColumns = '1fr';
+        for (let i = 0; i < n; i++) {
+            const inp = document.createElement('input');
+            inp.type = 'number';
+            inp.className = 'form-input matrix-cell';
+            inp.value = isRandom ? Math.floor(Math.random() * 11) - 5 : 0;
+            container.appendChild(inp);
+        }
+    };
+
+    // --- Pengambilan Data dari Input ---
+    const getMatrixFrom = (container, n) => Array.from(container.querySelectorAll('input')).reduce((acc, inp, i) => {
+        const row = Math.floor(i / n);
+        if (!acc[row]) acc[row] = [];
+        acc[row].push(isNaN(parseFloat(inp.value)) ? 0 : parseFloat(inp.value));
+        return acc;
+    }, []);
+    const getVectorFrom = (container) => [].slice.call(container.querySelectorAll('input')).map(inp => isNaN(parseFloat(inp.value)) ? 0 : parseFloat(inp.value));
+
+    // --- Logika Kalkulator ---
+    const solveAEqualsB = (A, B) => {
+        const n = A.length;
+        let steps = [], conclusion = "Semua elemen yang bersesuaian pada matriks A dan B adalah sama. Maka, A = B.", isEqual = true;
+        steps.push({
+            explanation: `Memeriksa kesamaan antara Matriks A dan Matriks B dengan membandingkan setiap elemen yang bersesuaian.`,
+            matrixLatex: `${formatMatrixLatex(A, 'A')} \\quad ? \\quad ${formatMatrixLatex(B, 'B')}`
+        });
+        let comparisonText = '';
+        for (let i = 0; i < n; i++) {
+            for (let j = 0; j < n; j++) {
+                const valA = A[i][j], valB = B[i][j], check = Math.abs(valA - valB) < 1e-9;
+                comparisonText += `A_{${i+1},${j+1}} vs B_{${i+1},${j+1}} \\rightarrow ${formatNumberLatex(valA)} ${check ? '=' : '\\neq'} ${formatNumberLatex(valB)} \\quad (${check ? '\\text{Sama}' : '\\text{Beda}'}) \\\\`;
+                if (!check) isEqual = false;
+            }
+        }
+        if (!isEqual) conclusion = "Terdapat elemen yang tidak sama antara matriks A dan B. Maka, A ≠ B.";
+        steps.push({ explanation: "Hasil perbandingan elemen per elemen:", matrixLatex: `\\begin{aligned}${comparisonText}\\end{aligned}` });
+        return { success: true, conclusion, steps };
+    };
+
+    const solveAxEqualsB = (A, b) => {
+        let steps = [];
+        const n = A.length, x_vars = Array.from({length: n}, (_, i) => [`x_{${i+1}}`]), b_vec = b.map(v => [v]);
+        steps.push({ explanation: `Menyelesaikan sistem persamaan dalam bentuk Ax = b.`, matrixLatex: `${formatMatrixLatex(A)} ${formatMatrixLatex(x_vars)} = ${formatMatrixLatex(b_vec)}` });
+        let detA, inverseA;
+        try {
+            detA = math.det(A);
+            if (math.abs(detA) < 1e-9) throw new Error();
+            inverseA = math.inv(A);
+        } catch (e) { return { success: false, message: 'Matriks A adalah singular (determinan 0) dan tidak memiliki invers.' }; }
+        steps.push({ explanation: `Langkah pertama adalah menghitung determinan dari matriks A.`, matrixLatex: `\\det(A) = ${formatNumberLatex(detA)}` });
+        steps.push({ explanation: `Hasil invers dari matriks A (A⁻¹) adalah:`, matrixLatex: formatMatrixLatex(inverseA, 'A^{-1}') });
+        const result = math.multiply(inverseA, b), result_vec = result.map(v => [v]);
+        steps.push({ explanation: `Selanjutnya, kalikan A⁻¹ dengan vektor b untuk mendapatkan hasil akhir x.`, matrixLatex: `${formatMatrixLatex(x_vars, 'x')} = ${formatMatrixLatex(inverseA)} \\times ${formatMatrixLatex(b_vec)} = ${formatMatrixLatex(result_vec)}` });
+        return { success: true, result, steps };
+    };
+    
+    // --- Fungsi Handler Utama ---
+    const computeSystem = () => {
+        outputEl.innerHTML = `<div class="text-center text-gray-400">Menghitung...</div>`;
+        const n = clampSize(parseInt(sizeInput.value));
+        const currentMode = document.querySelector('input[name="calcMode"]:checked').value;
+        setTimeout(() => {
+            let res;
+            if (currentMode === 'axb') res = solveAxEqualsB(getMatrixFrom(matrixA_AxB, n), getVectorFrom(vectorB_AxB));
+            else res = solveAEqualsB(getMatrixFrom(matrixA_AEB, n), getMatrixFrom(matrixB_AEB, n));
+            
+            outputEl.innerHTML = '';
+            if (!res.success) { outputEl.innerHTML = `<div class="text-red-400 font-bold text-center p-4">⚠️ ${res.message}</div>`; return; }
+            res.steps.forEach((s, idx) => { outputEl.innerHTML += `<div class="result-step"><div class="text-sm font-semibold text-cyan-400 mb-2">Langkah ${idx + 1}:</div><p class="text-gray-300 text-base mb-3">${s.explanation}</p><div class="math-container">\\(${s.matrixLatex}\\)</div></div>`; });
+            
+            let finalResultHTML = '';
+            if (res.result) {
+                let resultText = res.result.map((val, i) => `\\(x_{${i+1}} = ${formatNumberLatex(val)}\\)`).join('<br>');
+                finalResultHTML = `<h3 class="font-bold text-green-400 text-lg">Hasil Akhir: Solusi (x)</h3><div class="text-xl mt-2 text-center">${resultText}</div>`;
+            } else { finalResultHTML = `<h3 class="font-bold text-green-400 text-lg">Kesimpulan</h3><div class="text-xl mt-2 text-center">${res.conclusion}</div>`; }
+            outputEl.innerHTML += `<div class="mt-4 pt-4 border-t-2 border-green-500">${finalResultHTML}</div>`;
+            if (window.MathJax) MathJax.typesetPromise([outputEl]).catch(err => console.log('MathJax Error: ', err));
+        }, 50);
+    };
+
+    const updateAllGrids = (isRandom = false) => {
+        const n = clampSize(parseInt(sizeInput.value));
+        createGrid(matrixA_AxB, n, isRandom); createVectorGrid(vectorB_AxB, n, isRandom);
+        createGrid(matrixA_AEB, n, isRandom); createGrid(matrixB_AEB, n, isRandom);
+    };
+    
+    const resetAll = () => {
+        updateAllGrids(false);
+        outputEl.innerHTML = `<div class="text-gray-400">Pilih mode, masukkan angka, lalu tekan "Selesaikan".</div>`;
+    }
+
+    const handleModeChange = () => {
+        const currentMode = document.querySelector('input[name="calcMode"]:checked').value;
+        inputModeAxB.classList.toggle('hidden', currentMode !== 'axb');
+        inputModeAEB.classList.toggle('hidden', currentMode !== 'aeb');
+        resetAll();
+    };
+
+    const formatNumberAsHTML = (x) => {
+        if (document.getElementById('fractionMode').value === 'fraction') {
+            try { const f = math.fraction(x); return (f.d === 1) ? `${f.s * f.n}` : `<sup>${f.s * f.n}</sup>&frasl;<sub>${f.d}</sub>`; } 
+            catch { return math.format(x, { notation: 'fixed', precision: 4 }); }
+        }
+        return math.format(x, { notation: 'fixed', precision: 4 });
+    };
+    const formatMatrixAsHTMLTable = (M) => {
+        let table = '<table style="margin: auto; border-spacing: 0.5rem; border-collapse: separate; font-family: \'Roboto Mono\', monospace;"><tbody>';
+        for (const row of M) table += `<tr>${row.map(cell => `<td style="border: 1px solid #4b5663; border-radius: 0.375rem; padding: 0.5rem; text-align: center; min-width: 50px;">${formatNumberAsHTML(cell)}</td>`).join('')}</tr>`;
+        return table + '</tbody></table>';
+    };
+
+    const exportToPdf = () => {
+        if (outputEl.innerText.includes('Pilih mode')) { alert('Tidak ada hasil untuk di-export!'); return; }
+        const n = clampSize(parseInt(sizeInput.value));
+        const currentMode = document.querySelector('input[name="calcMode"]:checked').value;
+        let reportHTML = `<style>body{font-family:'Poppins',sans-serif;color:#e5e7eb;font-size:14px}h1,h2,h3{color:#38bdf8;margin:0;padding:0}p{margin:0;padding:0}.section{background-color:#1f2937;border:1px solid #374151;border-radius:.75rem;padding:1.5rem;margin-bottom:1.5rem}</style><div style="padding:1rem"><div style="text-align:center;margin-bottom:1.5rem"><h1>Laporan Perhitungan Matriks</h1></div>`;
+        if (currentMode === 'axb') {
+            const A = getMatrixFrom(matrixA_AxB, n), b = getVectorFrom(vectorB_AxB), res = solveAxEqualsB(A, b);
+            if (!res.success) { alert('Tidak bisa export PDF: ' + res.message); return; }
+            reportHTML += `<div class="section" style="text-align:center"><h2 style="font-size:1.25em;margin-bottom:1rem">Sistem Persamaan (Ax = b)</h2><div style="display:flex;justify-content:center;align-items:center;gap:1rem"><div>${formatMatrixAsHTMLTable(A)}</div><div style="font-size:1.5em">x</div><div style="font-size:1.5em">=</div><div>${formatMatrixAsHTMLTable(b.map(v=>[v]))}</div></div></div>`;
+            reportHTML += `<div><h2 style="font-size:1.25em;margin-bottom:1rem">Hasil Perhitungan</h2><div class="section" style="border-color:#22c55e"><h3 style="font-weight:600;color:#4ade80;margin-bottom:.5rem">Solusi (x)</h3>`;
+            res.result.forEach((val, i) => { reportHTML += `<p style="font-size:1.2em;font-family:'Roboto Mono',monospace;text-align:center">x<sub>${i+1}</sub> = ${formatNumberAsHTML(val)}</p>`; });
+        } else {
+            const A = getMatrixFrom(matrixA_AEB, n), B = getMatrixFrom(matrixB_AEB, n), res = solveAEqualsB(A, B);
+            reportHTML += `<div class="section" style="text-align:center"><h2 style="font-size:1.25em;margin-bottom:1rem">Kesamaan Matriks (A = B)</h2><div style="display:flex;justify-content:center;align-items:center;gap:1rem"><div>${formatMatrixAsHTMLTable(A)}</div><div style="font-size:1.5em">=</div><div>${formatMatrixAsHTMLTable(B)}</div></div></div>`;
+            reportHTML += `<div><h2 style="font-size:1.25em;margin-bottom:1rem">Hasil Perhitungan</h2><div class="section" style="border-color:#22c55e"><h3 style="font-weight:600;color:#4ade80;margin-bottom:.5rem">Kesimpulan</h3><p style="font-size:1.2em;text-align:center">${res.conclusion}</p>`;
+        }
+        reportHTML += `</div></div></div>`;
+        const opt = { margin: 0.5, filename: 'laporan_matriks.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+        html2pdf().from(reportHTML).set(opt).save();
+    };
+
+    // --- Inisialisasi Event Listener ---
+    sizeInput.addEventListener('input', () => updateAllGrids(false));
+    modeSelectors.forEach(radio => radio.addEventListener('change', handleModeChange));
+    computeBtn.addEventListener('click', computeSystem);
+    randomizeBtn.addEventListener('click', () => updateAllGrids(true));
+    resetBtn.addEventListener('click', resetAll);
+    exportBtn.addEventListener('click', exportToPdf);
+    
+    // --- Inisialisasi Tampilan Awal ---
+    handleModeChange();
+  </script>
+</body>
+</html>
