@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Kesamaan Matriks</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
+
+    <style>
+        /* CSS untuk tampilan "eye-catching" dark mode */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        :root {
+            --bg-color: #1a1b26;
+            --card-color: #24283b;
+            --text-color: #c0caf5;
+            --primary-color: #7aa2f7;
+            --secondary-color: #f7768e;
+            --accent-color: #9ece6a;
+            --input-bg: #1e2030;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 10px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 50px);
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .matrix-input {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            color: var(--text-color);
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        .matrix-input::placeholder {
+            color: #565f89;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .matrix-label {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #btn-solve {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+        }
+
+        #btn-solve:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+
+        #pembahasan {
+            line-height: 1.8;
+        }
+        
+        /* Preformatted text untuk menampilkan matriks */
+        pre {
+            background-color: var(--input-bg);
+            padding: 1rem;
+            border-radius: 5px;
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            font-size: 1.1rem;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kalkulator Soal Matriks Cerdas 🧠</h1>
+
+        <div class="card">
+            <h2>Input Matriks (Soal UN 2007)</h2>
+            <p>Selesaikan soal dengan kondisi: <strong>B = A - C<sup>T</sup></strong></p>
+            
+            <div class="input-group">
+                <div>
+                    <span class="matrix-label">A =</span>
+                    <div class="matrix-grid">
+                        <input type="text" id="a11" class="matrix-input" value="2">
+                        <input type="text" id="a12" class="matrix-input" value="-1">
+                        <input type="text" id="a21" class="matrix-input" value="1">
+                        <input type="text" id="a22" class="matrix-input" value="4">
+                    </div>
+                </div>
+                <div>
+                    <span class="matrix-label">B =</span>
+                    <div class="matrix-grid">
+                        <input type="text" id="b11" class="matrix-input" value="x+y">
+                        <input type="text" id="b12" class="matrix-input" value="2">
+                        <input type="text" id="b21" class="matrix-input" value="3">
+                        <input type="text" id="b22" class="matrix-input" value="y">
+                    </div>
+                </div>
+                <div>
+                    <span class="matrix-label">C =</span>
+                    <div class="matrix-grid">
+                        <input type="text" id="c11" class="matrix-input" value="7">
+                        <input type="text" id="c12" class="matrix-input" value="2">
+                        <input type="text" id="c21" class="matrix-input" value="3">
+                        <input type="text" id="c22" class="matrix-input" value="1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="btn-solve">Selesaikan Soal!</button>
+            </div>
+        </div>
+
+        <div class="card" id="pembahasan-wrapper" style="display: none;">
+            <h2>Pembahasan & Jawaban</h2>
+            <div id="pembahasan"></div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript untuk logika kalkulator
+        document.getElementById('btn-solve').addEventListener('click', function() {
+            // Tampilkan wrapper pembahasan
+            document.getElementById('pembahasan-wrapper').style.display = 'block';
+
+            // 1. Mengambil Nilai dari Input
+            const A = math.matrix([
+                [Number(document.getElementById('a11').value), Number(document.getElementById('a12').value)],
+                [Number(document.getElementById('a21').value), Number(document.getElementById('a22').value)]
+            ]);
+
+            const C = math.matrix([
+                [Number(document.getElementById('c11').value), Number(document.getElementById('c12').value)],
+                [Number(document.getElementById('c21').value), Number(document.getElementById('c22').value)]
+            ]);
+            
+            // Variabel dari matriks B disimpan sebagai string
+            const B_vars = {
+                b11: document.getElementById('b11').value,
+                b22: document.getElementById('b22').value
+            };
+
+            let steps = '';
+
+            // --- Mulai Langkah-Langkah Penyelesaian ---
+
+            steps += `<h3>1. Diketahui Matriks</h3>`;
+            steps += `<p>Dari soal, kita memiliki matriks berikut:</p>`;
+            steps += `<pre>A = ${math.format(A, {notation: 'fixed'})}\n\nB = [ ${B_vars.b11} , 2 ]\n    [ 3 , ${B_vars.b22} ]\n\nC = ${math.format(C, {notation: 'fixed'})}</pre>`;
+            steps += `<p>Dengan persamaan yang harus diselesaikan: <strong>B = A - C<sup>T</sup></strong></p>`;
+
+            steps += `<h3>2. Mencari Transpose Matriks C (C<sup>T</sup>)</h3>`;
+            steps += `<p>Transpose matriks adalah menukar elemen baris menjadi kolom dan sebaliknya.</p>`;
+            const C_T = math.transpose(C);
+            steps += `<pre>C = ${math.format(C, {notation: 'fixed'})}  =>  Cᵀ = ${math.format(C_T, {notation: 'fixed'})}</pre>`;
+            
+            steps += `<h3>3. Melakukan Operasi Pengurangan (A - C<sup>T</sup>)</h3>`;
+            steps += `<p>Sekarang kita kurangkan matriks A dengan matriks Cᵀ.</p>`;
+            const A_minus_CT = math.subtract(A, C_T);
+            steps += `<pre>A - Cᵀ = ${math.format(A, {notation: 'fixed'})} - ${math.format(C_T, {notation: 'fixed'})}\n\n       = ${math.format(A_minus_CT, {notation: 'fixed'})}</pre>`;
+
+            steps += `<h3>4. Menyelesaikan Persamaan Matriks (B = A - C<sup>T</sup>)</h3>`;
+            steps += `<p>Kita samakan matriks B dengan hasil dari (A - Cᵀ).</p>`;
+            steps += `<pre>[ ${B_vars.b11} , 2 ]  =  ${math.format(A_minus_CT, {notation: 'fixed'})}\n[ 3 , ${B_vars.b22} ]</pre>`;
+            
+            steps += `<p>Dengan menyamakan elemen-elemen yang bersesuaian, kita mendapatkan dua persamaan:</p>`;
+            
+            // Ambil nilai hasil dari A_minus_CT
+            const result_matrix = A_minus_CT.toArray();
+            const val_for_y = result_matrix[1][1]; // Elemen kanan bawah
+            const val_for_xy = result_matrix[0][0]; // Elemen kiri atas
+
+            steps += `<ol>
+                        <li>Elemen kanan bawah: <strong>${B_vars.b22} = ${val_for_y}</strong></li>
+                        <li>Elemen kiri atas: <strong>${B_vars.b11} = ${val_for_xy}</strong></li>
+                      </ol>`;
+            
+            // Menyelesaikan persamaan
+            const y = val_for_y;
+            // Persamaan kedua: x + y = val_for_xy  => x = val_for_xy - y
+            const x = val_for_xy - y;
+
+            steps += `<p>Dari persamaan (1), kita langsung mendapatkan nilai <strong>y = ${y}</strong>.</p>`;
+            steps += `<p>Kemudian, substitusikan nilai y ke persamaan (2):</p>`;
+            steps += `<pre>x + y = ${val_for_xy}\nx + (${y}) = ${val_for_xy}\nx = ${val_for_xy} - ${y}\n<strong>x = ${x}</strong></pre>`;
+
+            steps += `<h3>5. Jawaban Akhir</h3>`;
+            steps += `<p>Soal menanyakan nilai dari <strong>x * y</strong>.</p>`;
+            const final_answer = x * y;
+            steps += `<pre>x * y = ${x} * ${y} = <strong>${final_answer}</strong></pre>`;
+
+            // Tampilkan semua langkah di halaman
+            document.getElementById('pembahasan').innerHTML = steps;
+        });
+    </script>
+</body>
+</html>
